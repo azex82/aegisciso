@@ -1,0 +1,642 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String              @id @default(cuid())
+  email                String              @unique
+  passwordHash         String
+  name                 String
+  title                String?
+  department           String?
+  avatarUrl            String?
+  isActive             Boolean             @default(true)
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  lastLoginAt          DateTime?
+  roleId               String
+  auditLogs            AuditLog[]
+  exceptions           Exception[]         @relation("ExceptionApprover")
+  findings             Finding[]           @relation("FindingAssignee")
+  ownedInitiatives     Initiative[]        @relation("InitiativeOwner")
+  ownedPolicies        Policy[]            @relation("PolicyOwner")
+  ownedRisks           Risk[]              @relation("RiskOwner")
+  ownedObjectives      StrategyObjective[] @relation("ObjectiveOwner")
+  ownedRemediations    RemediationPlan[]   @relation("RemediationOwner")
+  role                 Role                @relation(fields: [roleId], references: [id])
+
+  @@map("users")
+}
+
+model Role {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  description String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  permissions RolePermission[]
+  users       User[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  description String?
+  resource    String
+  action      String
+  createdAt   DateTime         @default(now())
+  roles       RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  resource   String
+  resourceId String?
+  details    Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  user       User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([resource, resourceId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model Policy {
+  id              String                 @id @default(cuid())
+  code            String                 @unique
+  title           String
+  description     String?
+  version         String                 @default("1.0")
+  status          PolicyStatus           @default(DRAFT)
+  effectiveDate   DateTime?
+  reviewDate      DateTime?
+  approvalDate    DateTime?
+  expiryDate      DateTime?
+  category        String?
+  department      String?
+  ownerId         String?
+  maturityLevel   Int                    @default(1)
+  validityStatus  PolicyValidity         @default(VALID)
+  frameworkSource String?
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  objectiveLinks  ObjectiveControlLink[]
+  owner           User?                  @relation("PolicyOwner", fields: [ownerId], references: [id])
+  statements      PolicyStatement[]
+  riskLinks       RiskControlLink[]
+  riskPolicyLinks RiskPolicyLink[]
+
+  @@index([status])
+  @@index([category])
+  @@index([validityStatus])
+  @@index([expiryDate])
+  @@map("policies")
+}
+
+enum PolicyValidity {
+  VALID
+  EXPIRING_SOON
+  EXPIRED
+  UNDER_REVIEW
+}
+
+model PolicyStatement {
+  id            String             @id @default(cuid())
+  policyId      String
+  code          String
+  content       String
+  requirement   String?
+  guidance      String?
+  priority      StatementPriority  @default(MEDIUM)
+  status        StatementStatus    @default(ACTIVE)
+  wordingScore  Int?
+  wordingFlags  String[]
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  evidenceLinks EvidenceArtifact[]
+  mappings      Mapping[]
+  policy        Policy             @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  @@unique([policyId, code])
+  @@map("policy_statements")
+}
+
+model Framework {
+  id          String             @id @default(cuid())
+  code        String             @unique
+  name        String
+  version     String
+  description String?
+  category    String?
+  isActive    Boolean            @default(true)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  controls    FrameworkControl[]
+
+  @@map("frameworks")
+}
+
+model FrameworkControl {
+  id             String                 @id @default(cuid())
+  frameworkId    String
+  code           String
+  title          String
+  description    String?
+  category       String?
+  subCategory    String?
+  priority       String?
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  framework      Framework              @relation(fields: [frameworkId], references: [id], onDelete: Cascade)
+  mappings       Mapping[]
+  objectiveLinks ObjectiveControlLink[]
+  riskLinks      RiskControlLink[]
+
+  @@unique([frameworkId, code])
+  @@index([category])
+  @@map("framework_controls")
+}
+
+model Mapping {
+  id                 String           @id @default(cuid())
+  policyStatementId  String
+  frameworkControlId String
+  mappingType        MappingType      @default(IMPLEMENTS)
+  coverageLevel      CoverageLevel    @default(PARTIAL)
+  confidence         Int?
+  notes              String?
+  isAiSuggested      Boolean          @default(false)
+  isVerified         Boolean          @default(false)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  frameworkControl   FrameworkControl @relation(fields: [frameworkControlId], references: [id], onDelete: Cascade)
+  policyStatement    PolicyStatement  @relation(fields: [policyStatementId], references: [id], onDelete: Cascade)
+
+  @@unique([policyStatementId, frameworkControlId])
+  @@map("mappings")
+}
+
+model Risk {
+  id                 String             @id @default(cuid())
+  code               String             @unique
+  title              String
+  description        String?
+  category           String?
+  source             String?
+  inherentLikelihood Int
+  inherentImpact     Int
+  inherentRiskScore  Int
+  residualLikelihood Int?
+  residualImpact     Int?
+  residualRiskScore  Int?
+  status             RiskStatus         @default(IDENTIFIED)
+  treatmentPlan      String?
+  treatmentStatus    TreatmentStatus    @default(NOT_STARTED)
+  priority           Int                @default(3)
+  identifiedDate     DateTime           @default(now())
+  targetDate         DateTime?
+  lastReviewDate     DateTime?
+  ownerId            String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  exceptions         Exception[]
+  findings           Finding[]
+  controlLinks       RiskControlLink[]
+  remediationPlans   RemediationPlan[]
+  policyLinks        RiskPolicyLink[]
+  objectiveLinks     RiskObjectiveLink[]
+  owner              User?              @relation("RiskOwner", fields: [ownerId], references: [id])
+
+  @@index([status])
+  @@index([category])
+  @@index([inherentRiskScore])
+  @@index([priority])
+  @@map("risks")
+}
+
+model RemediationPlan {
+  id          String            @id @default(cuid())
+  riskId      String
+  title       String
+  description String?
+  status      RemediationStatus @default(NOT_STARTED)
+  priority    Int               @default(3)
+  progress    Int               @default(0)
+  ownerId     String?
+  dueDate     DateTime
+  startDate   DateTime?
+  completedAt DateTime?
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  risk        Risk              @relation(fields: [riskId], references: [id], onDelete: Cascade)
+  owner       User?             @relation("RemediationOwner", fields: [ownerId], references: [id])
+
+  @@index([status])
+  @@index([dueDate])
+  @@index([riskId])
+  @@map("remediation_plans")
+}
+
+enum RemediationStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  OVERDUE
+  CANCELLED
+}
+
+model RiskPolicyLink {
+  id           String   @id @default(cuid())
+  riskId       String
+  policyId     String
+  violationType String?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  risk         Risk     @relation(fields: [riskId], references: [id], onDelete: Cascade)
+  policy       Policy   @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  @@unique([riskId, policyId])
+  @@map("risk_policy_links")
+}
+
+model RiskObjectiveLink {
+  id          String            @id @default(cuid())
+  riskId      String
+  objectiveId String
+  impactLevel String?
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  risk        Risk              @relation(fields: [riskId], references: [id], onDelete: Cascade)
+  objective   StrategyObjective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+
+  @@unique([riskId, objectiveId])
+  @@map("risk_objective_links")
+}
+
+model RiskControlLink {
+  id                 String               @id @default(cuid())
+  riskId             String
+  policyId           String?
+  frameworkControlId String?
+  effectiveness      ControlEffectiveness @default(UNKNOWN)
+  notes              String?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  frameworkControl   FrameworkControl?    @relation(fields: [frameworkControlId], references: [id])
+  policy             Policy?              @relation(fields: [policyId], references: [id])
+  risk               Risk                 @relation(fields: [riskId], references: [id], onDelete: Cascade)
+
+  @@map("risk_control_links")
+}
+
+model Finding {
+  id              String             @id @default(cuid())
+  code            String             @unique
+  title           String
+  description     String?
+  source          String?
+  severity        FindingSeverity    @default(MEDIUM)
+  status          FindingStatus      @default(OPEN)
+  riskId          String?
+  assigneeId      String?
+  dueDate         DateTime?
+  closedDate      DateTime?
+  remediationPlan String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  evidence        EvidenceArtifact[]
+  assignee        User?              @relation("FindingAssignee", fields: [assigneeId], references: [id])
+  risk            Risk?              @relation(fields: [riskId], references: [id])
+
+  @@index([status])
+  @@index([severity])
+  @@map("findings")
+}
+
+model EvidenceArtifact {
+  id                String           @id @default(cuid())
+  name              String
+  description       String?
+  fileUrl           String?
+  fileType          String?
+  policyStatementId String?
+  findingId         String?
+  collectedDate     DateTime         @default(now())
+  expiryDate        DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  finding           Finding?         @relation(fields: [findingId], references: [id])
+  policyStatement   PolicyStatement? @relation(fields: [policyStatementId], references: [id])
+
+  @@map("evidence_artifacts")
+}
+
+model Exception {
+  id                   String          @id @default(cuid())
+  code                 String          @unique
+  title                String
+  description          String?
+  justification        String
+  riskId               String?
+  status               ExceptionStatus @default(PENDING)
+  approverId           String?
+  requestedDate        DateTime        @default(now())
+  approvalDate         DateTime?
+  expiryDate           DateTime
+  compensatingControls String?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  approver             User?           @relation("ExceptionApprover", fields: [approverId], references: [id])
+  risk                 Risk?           @relation(fields: [riskId], references: [id])
+
+  @@index([status])
+  @@map("exceptions")
+}
+
+model StrategyObjective {
+  id              String                 @id @default(cuid())
+  code            String                 @unique
+  title           String
+  description     String?
+  category        String?
+  priority        ObjectivePriority      @default(MEDIUM)
+  status          ObjectiveStatus        @default(NOT_STARTED)
+  targetDate      DateTime?
+  completionDate  DateTime?
+  progressPercent Int                    @default(0)
+  ownerId         String?
+  fiscalYear      String?
+  quarter         String?
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  initiatives     Initiative[]
+  kpis            KPI[]
+  controlLinks    ObjectiveControlLink[]
+  riskLinks       RiskObjectiveLink[]
+  owner           User?                  @relation("ObjectiveOwner", fields: [ownerId], references: [id])
+
+  @@index([status])
+  @@index([fiscalYear])
+  @@map("strategy_objectives")
+}
+
+model Initiative {
+  id              String            @id @default(cuid())
+  code            String            @unique
+  title           String
+  description     String?
+  status          InitiativeStatus  @default(PLANNED)
+  objectiveId     String
+  ownerId         String?
+  startDate       DateTime?
+  targetDate      DateTime?
+  completionDate  DateTime?
+  progressPercent Int               @default(0)
+  budget          Decimal?
+  actualSpend     Decimal?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  objective       StrategyObjective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+  owner           User?             @relation("InitiativeOwner", fields: [ownerId], references: [id])
+
+  @@index([status])
+  @@map("initiatives")
+}
+
+model ObjectiveControlLink {
+  id                 String            @id @default(cuid())
+  objectiveId        String
+  policyId           String?
+  frameworkControlId String?
+  linkType           String?
+  notes              String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  frameworkControl   FrameworkControl? @relation(fields: [frameworkControlId], references: [id])
+  objective          StrategyObjective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+  policy             Policy?           @relation(fields: [policyId], references: [id])
+
+  @@map("objective_control_links")
+}
+
+model KPI {
+  id             String            @id @default(cuid())
+  code           String            @unique
+  name           String
+  description    String?
+  objectiveId    String
+  targetValue    Decimal?
+  currentValue   Decimal?
+  unit           String?
+  frequency      String?
+  status         KPIStatus         @default(ON_TARGET)
+  trend          KPITrend          @default(STABLE)
+  lastMeasuredAt DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  measurements   KPIMeasurement[]
+  objective      StrategyObjective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+
+  @@map("kpis")
+}
+
+model KPIMeasurement {
+  id         String   @id @default(cuid())
+  kpiId      String
+  value      Decimal
+  measuredAt DateTime @default(now())
+  notes      String?
+  createdAt  DateTime @default(now())
+  kpi        KPI      @relation(fields: [kpiId], references: [id], onDelete: Cascade)
+
+  @@index([kpiId, measuredAt])
+  @@map("kpi_measurements")
+}
+
+model PostureSnapshot {
+  id                      String   @id @default(cuid())
+  snapshotDate            DateTime @default(now())
+  overallScore            Int
+  policyHealthScore       Int
+  complianceCoverage      Int
+  riskExposureScore       Int
+  strategyAlignmentScore  Int
+  maturityLevel           Int      @default(1)
+  totalPolicies           Int
+  activePolicies          Int
+  policiesNeedingReview   Int
+  policiesExpiringSoon    Int      @default(0)
+  policyViolations        Int      @default(0)
+  totalRisks              Int
+  criticalRisks           Int
+  highRisks               Int
+  mediumRisks             Int      @default(0)
+  lowRisks                Int      @default(0)
+  risksWithoutControls    Int
+  overdueRemediations     Int      @default(0)
+  totalRemediations       Int      @default(0)
+  completedRemediations   Int      @default(0)
+  totalControls           Int
+  implementedControls     Int
+  totalObjectives         Int
+  objectivesOnTrack       Int
+  objectivesAtRisk        Int
+  objectivesImpactedByRisk Int     @default(0)
+  overdueActions          Int      @default(0)
+  strategyImpactScore     Float    @default(0)
+  metadata                Json?
+  createdAt               DateTime @default(now())
+
+  @@index([snapshotDate])
+  @@map("posture_snapshots")
+}
+
+enum PolicyStatus {
+  DRAFT
+  UNDER_REVIEW
+  APPROVED
+  PUBLISHED
+  RETIRED
+}
+
+enum StatementPriority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum StatementStatus {
+  ACTIVE
+  DEPRECATED
+  PENDING_REVIEW
+}
+
+enum MappingType {
+  IMPLEMENTS
+  PARTIALLY_IMPLEMENTS
+  SUPPORTS
+  RELATED
+}
+
+enum CoverageLevel {
+  FULL
+  PARTIAL
+  MINIMAL
+  NONE
+}
+
+enum RiskStatus {
+  IDENTIFIED
+  ASSESSING
+  TREATING
+  MONITORING
+  ACCEPTED
+  CLOSED
+}
+
+enum TreatmentStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  ON_HOLD
+}
+
+enum ControlEffectiveness {
+  HIGHLY_EFFECTIVE
+  EFFECTIVE
+  PARTIALLY_EFFECTIVE
+  INEFFECTIVE
+  UNKNOWN
+}
+
+enum FindingSeverity {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+  INFO
+}
+
+enum FindingStatus {
+  OPEN
+  IN_PROGRESS
+  REMEDIATED
+  VERIFIED
+  CLOSED
+  ACCEPTED
+}
+
+enum ExceptionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+  REVOKED
+}
+
+enum ObjectivePriority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum ObjectiveStatus {
+  NOT_STARTED
+  ON_TRACK
+  AT_RISK
+  DELAYED
+  COMPLETED
+  CANCELLED
+}
+
+enum InitiativeStatus {
+  PLANNED
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum KPIStatus {
+  ON_TARGET
+  AT_RISK
+  OFF_TARGET
+  NOT_MEASURED
+}
+
+enum KPITrend {
+  IMPROVING
+  STABLE
+  DECLINING
+  UNKNOWN
+}

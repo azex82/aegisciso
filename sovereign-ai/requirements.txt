@@ -1,0 +1,55 @@
+# Sovereign AI Cybersecurity Director - Dependencies
+# All packages run locally - NO external API calls
+
+# Core Framework
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt,argon2]==1.7.4
+cryptography==41.0.7
+python-multipart==0.0.6
+pyotp==2.9.0  # TOTP for MFA
+
+# Database
+asyncpg==0.29.0
+sqlalchemy[asyncio]==2.0.25
+alembic==1.13.1
+psycopg2-binary==2.9.9
+
+# Private LLM Integration (Ollama)
+ollama==0.1.6
+httpx>=0.25.2,<0.26.0
+
+# RAG & Embeddings (Local)
+langchain==0.1.0
+langchain-community==0.0.10
+chromadb==0.4.22
+sentence-transformers==2.2.2
+
+# Document Processing
+pypdf==3.17.4
+python-docx==1.1.0
+openpyxl==3.1.2
+unstructured==0.12.0
+
+# Data Protection & DLP
+presidio-analyzer==2.2.351
+presidio-anonymizer==2.2.351
+spacy==3.7.2
+
+# Monitoring & Logging
+structlog==24.1.0
+prometheus-client==0.19.0
+
+# Testing
+pytest==7.4.4
+pytest-asyncio==0.23.3
+
+# Utilities
+python-dotenv==1.0.0
+pyyaml==6.0.1
+tenacity==8.2.3

@@ -1,0 +1,278 @@
+version: '3.8'
+
+# AegisCISO Sovereign AI Cybersecurity Director
+# Complete on-premises deployment - NO external dependencies
+# All AI processing runs locally with zero data exfiltration
+
+services:
+  # ============================================================================
+  # DATABASE LAYER
+  # ============================================================================
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: aegisciso-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-aegisciso}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-aegisciso_secret}
+      POSTGRES_DB: ${DB_NAME:-aegisciso}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-aegisciso}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - aegisciso-network
+
+  # ============================================================================
+  # PRIVATE LLM LAYER (Ollama)
+  # ============================================================================
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: aegisciso-ollama
+    restart: unless-stopped
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    # GPU support (uncomment for NVIDIA GPU)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - aegisciso-network
+
+  # Model initialization - pulls required models
+  ollama-init:
+    image: ollama/ollama:latest
+    container_name: aegisciso-ollama-init
+    depends_on:
+      ollama:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "Pulling LLM models..."
+        ollama pull mistral:7b
+        ollama pull nomic-embed-text
+        echo "Models ready!"
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    networks:
+      - aegisciso-network
+
+  # ============================================================================
+  # VECTOR DATABASE (ChromaDB)
+  # ============================================================================
+
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: aegisciso-chromadb
+    restart: unless-stopped
+    volumes:
+      - chroma_data:/chroma/chroma
+    ports:
+      - "8001:8000"
+    environment:
+      - CHROMA_SERVER_AUTH_CREDENTIALS_PROVIDER=chromadb.auth.token.TokenConfigServerAuthCredentialsProvider
+      - CHROMA_SERVER_AUTH_TOKEN_TRANSPORT_HEADER=Authorization
+      - CHROMA_AUTH_TOKEN_TRANSPORT_HEADER=Authorization
+      - ANONYMIZED_TELEMETRY=False
+      - ALLOW_RESET=False
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - aegisciso-network
+
+  # ============================================================================
+  # SOVEREIGN AI BACKEND (FastAPI)
+  # ============================================================================
+
+  sovereign-ai:
+    build:
+      context: ./sovereign-ai
+      dockerfile: Dockerfile
+    container_name: aegisciso-sovereign-ai
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+      chromadb:
+        condition: service_healthy
+    environment:
+      # Database
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-aegisciso}
+      DB_PASSWORD: ${DB_PASSWORD:-aegisciso_secret}
+      DB_NAME: ${DB_NAME:-aegisciso}
+
+      # LLM Configuration (LOCAL ONLY)
+      LLM_OLLAMA_HOST: http://ollama:11434
+      LLM_OLLAMA_MODEL: mistral:7b
+      LLM_OLLAMA_EMBEDDING_MODEL: nomic-embed-text
+
+      # RAG Configuration
+      RAG_CHROMA_HOST: chromadb
+      RAG_CHROMA_PORT: 8000
+      RAG_CHROMA_PERSIST_DIRECTORY: /data/chromadb
+
+      # Security
+      SECURITY_JWT_SECRET_KEY: ${JWT_SECRET:-change-this-in-production-use-64-char-random}
+      SECURITY_ENCRYPTION_KEY: ${ENCRYPTION_KEY:-change-this-in-production-use-32-char-random}
+
+      # Sovereignty enforcement
+      EXTERNAL_API_CALLS_ALLOWED: "false"
+      TELEMETRY_ENABLED: "false"
+
+      # DLP
+      DLP_ENABLED: "true"
+      DLP_SCAN_INPUTS: "true"
+      DLP_SCAN_OUTPUTS: "true"
+    volumes:
+      - sovereign_ai_data:/data
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - aegisciso-network
+
+  # ============================================================================
+  # FRONTEND (Next.js)
+  # ============================================================================
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        - APP_NAME=executive-dashboard
+    container_name: aegisciso-frontend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      sovereign-ai:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-aegisciso}:${DB_PASSWORD:-aegisciso_secret}@postgres:5432/${DB_NAME:-aegisciso}?schema=public
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-change-this-in-production}
+      NEXTAUTH_URL: http://localhost:3001
+      SOVEREIGN_AI_URL: http://sovereign-ai:8000
+    ports:
+      - "3001:3001"
+    networks:
+      - aegisciso-network
+
+  # ============================================================================
+  # REVERSE PROXY (Nginx) - Optional for production
+  # ============================================================================
+
+  nginx:
+    image: nginx:alpine
+    container_name: aegisciso-nginx
+    restart: unless-stopped
+    depends_on:
+      - frontend
+      - sovereign-ai
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - aegisciso-network
+    profiles:
+      - production
+
+  # ============================================================================
+  # MONITORING (Optional)
+  # ============================================================================
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: aegisciso-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - aegisciso-network
+    profiles:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: aegisciso-grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3000:3000"
+    networks:
+      - aegisciso-network
+    profiles:
+      - monitoring
+
+# ============================================================================
+# VOLUMES
+# ============================================================================
+
+volumes:
+  postgres_data:
+    driver: local
+  ollama_data:
+    driver: local
+  chroma_data:
+    driver: local
+  sovereign_ai_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+# ============================================================================
+# NETWORKS
+# ============================================================================
+
+networks:
+  aegisciso-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16

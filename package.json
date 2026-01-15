@@ -1,0 +1,34 @@
+{
+  "name": "aegisciso",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "clean": "turbo clean && rm -rf node_modules",
+    "db:up": "docker-compose up -d",
+    "db:down": "docker-compose down",
+    "db:reset": "docker-compose down -v && docker-compose up -d",
+    "prisma:generate": "pnpm --filter @aegisciso/db prisma:generate",
+    "prisma:migrate": "pnpm --filter @aegisciso/db prisma:migrate",
+    "prisma:push": "pnpm --filter @aegisciso/db prisma:push",
+    "prisma:studio": "pnpm --filter @aegisciso/db prisma:studio",
+    "seed": "pnpm --filter @aegisciso/db seed",
+    "test": "turbo test",
+    "test:e2e": "playwright test",
+    "dev:dashboard": "pnpm --filter executive-dashboard dev",
+    "dev:policy": "pnpm --filter policy-mapper dev",
+    "dev:risk": "pnpm --filter risk-policy-hub dev",
+    "dev:strategy": "pnpm --filter strategy-health dev"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "turbo": "^1.11.0",
+    "typescript": "^5.3.0"
+  },
+  "packageManager": "pnpm@8.12.0",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

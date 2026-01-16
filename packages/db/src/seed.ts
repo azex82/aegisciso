@@ -135,14 +135,14 @@ async function main() {
   console.log('✅ Assigned permissions to roles');
 
   // ============================================
-  // USERS
+  // USERS (Arabic names)
   // ============================================
   const users = await Promise.all([
     prisma.user.create({
       data: {
-        email: 'ciso@aegisciso.com',
-        passwordHash: hashPassword('SecurePass123!'),
-        name: 'Sarah Chen',
+        email: 'ciso@sabic.com',
+        passwordHash: hashPassword('CisoPass123!'),
+        name: 'Ahmed Almalki',
         title: 'Chief Information Security Officer',
         department: 'Information Security',
         roleId: cisoRole.id,
@@ -150,9 +150,9 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        email: 'admin@aegisciso.com',
+        email: 'admin@sabic.com',
         passwordHash: hashPassword('AdminPass123!'),
-        name: 'Michael Roberts',
+        name: 'Noura bint Khalid Al-Qahtani',
         title: 'Security Administrator',
         department: 'Information Security',
         roleId: adminRole.id,
@@ -160,9 +160,9 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        email: 'analyst@aegisciso.com',
+        email: 'analyst@sabic.com',
         passwordHash: hashPassword('AnalystPass123!'),
-        name: 'Emily Watson',
+        name: 'Khalid bin Saad Al-Ghamdi',
         title: 'Senior Security Analyst',
         department: 'Information Security',
         roleId: analystRole.id,
@@ -170,9 +170,9 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        email: 'viewer@aegisciso.com',
+        email: 'viewer@sabic.com',
         passwordHash: hashPassword('ViewerPass123!'),
-        name: 'James Miller',
+        name: 'Maha bint Abdullah Al-Mutairi',
         title: 'Compliance Officer',
         department: 'Compliance',
         roleId: viewerRole.id,
@@ -1214,10 +1214,10 @@ async function main() {
 
   console.log('\n🎉 Seed completed successfully!');
   console.log('\n📋 Test Credentials:');
-  console.log('  CISO:    ciso@aegisciso.com / SecurePass123!');
-  console.log('  Admin:   admin@aegisciso.com / AdminPass123!');
-  console.log('  Analyst: analyst@aegisciso.com / AnalystPass123!');
-  console.log('  Viewer:  viewer@aegisciso.com / ViewerPass123!');
+  console.log('  CISO:    ciso@sabic.com / CisoPass123!');
+  console.log('  Admin:   admin@sabic.com / AdminPass123!');
+  console.log('  Analyst: analyst@sabic.com / AnalystPass123!');
+  console.log('  Viewer:  viewer@sabic.com / ViewerPass123!');
 }
 
 main()

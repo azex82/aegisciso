@@ -2,6 +2,7 @@
 
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Avatar,
   AvatarFallback,
@@ -26,6 +27,7 @@ interface HeaderProps {
 }
 
 export function Header({ user }: HeaderProps) {
+  const router = useRouter();
   const initials = user.name
     ?.split(' ')
     .map((n) => n[0])
@@ -38,8 +40,8 @@ export function Header({ user }: HeaderProps) {
         {/* Logo and Brand - SHARP */}
         <div className="flex items-center">
           <Link href="/" className="flex items-center">
-            {/* SHARP Logo with shield icon */}
-            <SharpLogoSVG className="h-12 w-auto" variant="full" color="gradient" />
+            {/* SHARP Logo */}
+            <SharpLogoSVG className="h-14 w-auto" variant="default" color="gradient" />
           </Link>
         </div>
 
@@ -80,7 +82,10 @@ export function Header({ user }: HeaderProps) {
                 <span className="text-xs text-muted-foreground">Quarterly assessment required</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="justify-center text-primary">
+              <DropdownMenuItem
+                className="justify-center text-primary cursor-pointer"
+                onClick={() => router.push('/risks')}
+              >
                 View all notifications
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -114,15 +119,15 @@ export function Header({ user }: HeaderProps) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push('/profile')} className="cursor-pointer">
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer">
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push('/help')} className="cursor-pointer">
                 <HelpCircle className="mr-2 h-4 w-4" />
                 <span>Help & Support</span>
               </DropdownMenuItem>

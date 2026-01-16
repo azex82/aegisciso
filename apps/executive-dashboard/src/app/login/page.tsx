@@ -47,7 +47,7 @@ function LoginForm() {
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#1a237e] via-[#1565c0] to-[#42a5f5] items-center justify-center p-12">
         <div className="text-white max-w-md">
           {/* SHARP Logo */}
-          <SharpLogoSVG className="h-24 w-auto mb-8" variant="full" color="white" />
+          <SharpLogoSVG className="h-20 w-auto mb-8" variant="default" color="white" />
           <h1 className="text-3xl font-bold mb-4 mt-4">AI Cybersecurity Director</h1>
           <p className="text-lg text-white/80 mb-6">
             Enterprise-grade security governance, risk management, and compliance platform powered by sovereign AI.
@@ -71,7 +71,7 @@ function LoginForm() {
           <CardHeader className="space-y-1 text-center pb-2">
             {/* Mobile logo */}
             <div className="lg:hidden flex justify-center mb-4">
-              <SharpLogoSVG className="h-16 w-auto" variant="full" color="gradient" />
+              <SharpLogoSVG className="h-14 w-auto" variant="default" color="gradient" />
             </div>
             <CardTitle className="text-2xl font-bold text-gray-900">Welcome back</CardTitle>
             <CardDescription className="text-gray-500">Sign in to your account to continue</CardDescription>

@@ -380,11 +380,11 @@ async function main() {
   const users = await Promise.all([
     prisma.user.upsert({
       where: { email: 'ciso@sabic.com' },
-      update: { name: 'Ahmad bin Fahad Al-Rashid', passwordHash: hashPassword('CisoPass123!') },
+      update: { name: 'Ahmed Almalki', passwordHash: hashPassword('CisoPass123!') },
       create: {
         email: 'ciso@sabic.com',
         passwordHash: hashPassword('CisoPass123!'),
-        name: 'Ahmad bin Fahad Al-Rashid',
+        name: 'Ahmed Almalki',
         title: 'Chief Information Security Officer',
         department: 'Information Security',
         roleId: roles[0].id,

@@ -1,0 +1,545 @@
+/* ============================================
+   SHARP Enterprise Security Platform
+   Design System & Color Scheme
+   ============================================ */
+
+/*
+   Color Palette:
+   - Navy Blue (Primary): Trust, Security, Professionalism
+   - SABIC Blue: Brand Identity
+   - SABIC Yellow/Gold: Accent, CTAs, Highlights
+   - Grey Scale: UI Elements, Text, Backgrounds
+   - Status Colors: Alerts, Risk Levels
+*/
+
+:root {
+  /* ============================================
+     BRAND COLORS
+     ============================================ */
+
+  /* Navy Blue - Primary Brand Color */
+  --sharp-navy-50: 220 60% 97%;
+  --sharp-navy-100: 220 55% 93%;
+  --sharp-navy-200: 220 50% 85%;
+  --sharp-navy-300: 220 50% 70%;
+  --sharp-navy-400: 220 55% 55%;
+  --sharp-navy-500: 220 60% 40%;
+  --sharp-navy-600: 220 65% 30%;
+  --sharp-navy-700: 220 70% 23%;      /* Main Navy */
+  --sharp-navy-800: 220 75% 18%;
+  --sharp-navy-900: 220 80% 12%;
+  --sharp-navy-950: 220 85% 8%;
+
+  /* SABIC Blue - Secondary Brand */
+  --sharp-blue-50: 220 100% 97%;
+  --sharp-blue-100: 220 100% 93%;
+  --sharp-blue-200: 220 100% 85%;
+  --sharp-blue-300: 220 100% 72%;
+  --sharp-blue-400: 220 100% 58%;
+  --sharp-blue-500: 220 100% 50%;     /* SABIC Blue */
+  --sharp-blue-600: 220 100% 42%;
+  --sharp-blue-700: 220 100% 34%;     /* #0047AF Official */
+  --sharp-blue-800: 220 100% 28%;
+  --sharp-blue-900: 220 100% 22%;
+
+  /* SABIC Yellow/Gold - Accent */
+  --sharp-gold-50: 40 100% 97%;
+  --sharp-gold-100: 40 100% 92%;
+  --sharp-gold-200: 38 100% 82%;
+  --sharp-gold-300: 36 100% 70%;
+  --sharp-gold-400: 36 100% 60%;
+  --sharp-gold-500: 36 100% 50%;      /* #FF9700 Official */
+  --sharp-gold-600: 32 100% 45%;
+  --sharp-gold-700: 28 100% 40%;
+  --sharp-gold-800: 24 100% 35%;
+  --sharp-gold-900: 20 100% 28%;
+
+  /* Grey Scale - UI Foundation */
+  --sharp-grey-50: 220 20% 98%;
+  --sharp-grey-100: 220 18% 96%;
+  --sharp-grey-200: 220 16% 91%;
+  --sharp-grey-300: 220 14% 82%;
+  --sharp-grey-400: 220 12% 64%;
+  --sharp-grey-500: 220 10% 46%;
+  --sharp-grey-600: 220 12% 36%;
+  --sharp-grey-700: 220 14% 28%;
+  --sharp-grey-800: 220 16% 20%;
+  --sharp-grey-900: 220 18% 14%;
+  --sharp-grey-950: 220 20% 8%;
+
+  /* ============================================
+     SEMANTIC COLORS
+     ============================================ */
+
+  /* Success - Green */
+  --sharp-success-50: 142 76% 97%;
+  --sharp-success-100: 142 76% 90%;
+  --sharp-success-500: 142 76% 36%;
+  --sharp-success-600: 142 76% 30%;
+  --sharp-success-700: 142 76% 24%;
+
+  /* Warning - Amber */
+  --sharp-warning-50: 45 100% 96%;
+  --sharp-warning-100: 45 100% 88%;
+  --sharp-warning-500: 45 100% 50%;
+  --sharp-warning-600: 40 100% 45%;
+  --sharp-warning-700: 35 100% 40%;
+
+  /* Error/Danger - Red */
+  --sharp-danger-50: 0 86% 97%;
+  --sharp-danger-100: 0 86% 90%;
+  --sharp-danger-500: 0 84% 60%;
+  --sharp-danger-600: 0 84% 50%;
+  --sharp-danger-700: 0 84% 40%;
+
+  /* Info - Cyan */
+  --sharp-info-50: 195 100% 97%;
+  --sharp-info-100: 195 100% 90%;
+  --sharp-info-500: 195 100% 42%;
+  --sharp-info-600: 195 100% 35%;
+  --sharp-info-700: 195 100% 28%;
+
+  /* ============================================
+     RISK & MATURITY COLORS
+     ============================================ */
+
+  /* Risk Levels */
+  --risk-critical: 0 84% 50%;         /* Red */
+  --risk-high: 25 95% 53%;            /* Orange */
+  --risk-medium: 36 100% 50%;         /* Yellow/Gold */
+  --risk-low: 142 76% 36%;            /* Green */
+  --risk-info: 220 100% 50%;          /* Blue */
+
+  /* Maturity Levels (1-5) */
+  --maturity-initial: 0 84% 50%;      /* Level 1 - Red */
+  --maturity-developing: 25 95% 53%;  /* Level 2 - Orange */
+  --maturity-defined: 36 100% 50%;    /* Level 3 - Yellow */
+  --maturity-managed: 142 50% 45%;    /* Level 4 - Light Green */
+  --maturity-optimized: 142 76% 36%;  /* Level 5 - Green */
+
+  /* Compliance Status */
+  --compliance-compliant: 142 76% 36%;
+  --compliance-partial: 36 100% 50%;
+  --compliance-non-compliant: 0 84% 50%;
+  --compliance-not-applicable: 220 10% 60%;
+
+  /* ============================================
+     CHART & DATA VIZ COLORS
+     ============================================ */
+
+  --chart-navy: 220 70% 23%;
+  --chart-blue: 220 100% 50%;
+  --chart-gold: 36 100% 50%;
+  --chart-grey: 220 10% 46%;
+  --chart-cyan: 195 100% 42%;
+  --chart-teal: 170 80% 40%;
+  --chart-purple: 270 70% 50%;
+  --chart-pink: 330 80% 60%;
+
+  /* ============================================
+     GRADIENT DEFINITIONS
+     ============================================ */
+
+  --gradient-sharp: linear-gradient(135deg,
+    hsl(220 70% 23%) 0%,
+    hsl(220 100% 42%) 50%,
+    hsl(220 100% 58%) 100%);
+
+  --gradient-gold: linear-gradient(135deg,
+    hsl(36 100% 50%) 0%,
+    hsl(40 100% 60%) 100%);
+
+  --gradient-navy-gold: linear-gradient(135deg,
+    hsl(220 70% 23%) 0%,
+    hsl(220 100% 42%) 50%,
+    hsl(36 100% 50%) 100%);
+
+  --gradient-card: linear-gradient(180deg,
+    hsl(220 20% 98%) 0%,
+    hsl(0 0% 100%) 100%);
+}
+
+/* ============================================
+   LIGHT THEME
+   ============================================ */
+
+:root, [data-theme="light"] {
+  /* Background & Surface */
+  --background: var(--sharp-grey-50);
+  --surface: 0 0% 100%;
+  --surface-elevated: 0 0% 100%;
+
+  /* Text */
+  --foreground: var(--sharp-navy-900);
+  --foreground-muted: var(--sharp-grey-500);
+  --foreground-subtle: var(--sharp-grey-400);
+
+  /* Primary (Navy) */
+  --primary: var(--sharp-navy-700);
+  --primary-hover: var(--sharp-navy-800);
+  --primary-foreground: 0 0% 100%;
+
+  /* Secondary (SABIC Blue) */
+  --secondary: var(--sharp-blue-700);
+  --secondary-hover: var(--sharp-blue-800);
+  --secondary-foreground: 0 0% 100%;
+
+  /* Accent (Gold) */
+  --accent: var(--sharp-gold-500);
+  --accent-hover: var(--sharp-gold-600);
+  --accent-foreground: var(--sharp-navy-900);
+
+  /* Muted */
+  --muted: var(--sharp-grey-100);
+  --muted-foreground: var(--sharp-grey-600);
+
+  /* Card */
+  --card: 0 0% 100%;
+  --card-foreground: var(--sharp-navy-900);
+  --card-border: var(--sharp-grey-200);
+
+  /* Borders & Inputs */
+  --border: var(--sharp-grey-200);
+  --input: var(--sharp-grey-200);
+  --ring: var(--sharp-blue-500);
+
+  /* Popover */
+  --popover: 0 0% 100%;
+  --popover-foreground: var(--sharp-navy-900);
+}
+
+/* ============================================
+   DARK THEME
+   ============================================ */
+
+.dark, [data-theme="dark"] {
+  /* Background & Surface */
+  --background: var(--sharp-navy-950);
+  --surface: var(--sharp-navy-900);
+  --surface-elevated: var(--sharp-navy-800);
+
+  /* Text */
+  --foreground: var(--sharp-grey-50);
+  --foreground-muted: var(--sharp-grey-400);
+  --foreground-subtle: var(--sharp-grey-500);
+
+  /* Primary (Navy/Blue glow) */
+  --primary: var(--sharp-blue-500);
+  --primary-hover: var(--sharp-blue-400);
+  --primary-foreground: var(--sharp-navy-950);
+
+  /* Secondary */
+  --secondary: var(--sharp-grey-800);
+  --secondary-hover: var(--sharp-grey-700);
+  --secondary-foreground: var(--sharp-grey-100);
+
+  /* Accent (Gold) */
+  --accent: var(--sharp-gold-500);
+  --accent-hover: var(--sharp-gold-400);
+  --accent-foreground: var(--sharp-navy-900);
+
+  /* Muted */
+  --muted: var(--sharp-navy-800);
+  --muted-foreground: var(--sharp-grey-400);
+
+  /* Card */
+  --card: var(--sharp-navy-900);
+  --card-foreground: var(--sharp-grey-50);
+  --card-border: var(--sharp-navy-700);
+
+  /* Borders & Inputs */
+  --border: var(--sharp-navy-700);
+  --input: var(--sharp-navy-700);
+  --ring: var(--sharp-blue-400);
+
+  /* Popover */
+  --popover: var(--sharp-navy-900);
+  --popover-foreground: var(--sharp-grey-50);
+}
+
+/* ============================================
+   COMPONENT STYLES
+   ============================================ */
+
+/* Navigation */
+.sharp-nav {
+  background: linear-gradient(180deg,
+    hsl(var(--sharp-navy-800)) 0%,
+    hsl(var(--sharp-navy-900)) 100%);
+  border-bottom: 1px solid hsl(var(--sharp-navy-700));
+}
+
+.sharp-nav-item {
+  color: hsl(var(--sharp-grey-300));
+  transition: color 0.2s;
+}
+
+.sharp-nav-item:hover,
+.sharp-nav-item.active {
+  color: hsl(var(--sharp-gold-400));
+}
+
+/* Sidebar */
+.sharp-sidebar {
+  background: hsl(var(--sharp-navy-900));
+  border-right: 1px solid hsl(var(--sharp-navy-700));
+}
+
+.sharp-sidebar-item {
+  color: hsl(var(--sharp-grey-300));
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s;
+}
+
+.sharp-sidebar-item:hover {
+  background: hsl(var(--sharp-navy-800));
+  color: hsl(var(--sharp-grey-100));
+}
+
+.sharp-sidebar-item.active {
+  background: hsl(var(--sharp-blue-700) / 0.3);
+  color: hsl(var(--sharp-blue-300));
+  border-left: 3px solid hsl(var(--sharp-gold-500));
+}
+
+/* Buttons */
+.sharp-btn-primary {
+  background: linear-gradient(135deg,
+    hsl(var(--sharp-navy-700)) 0%,
+    hsl(var(--sharp-blue-700)) 100%);
+  color: white;
+  border: none;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px hsl(var(--sharp-navy-900) / 0.2);
+}
+
+.sharp-btn-primary:hover {
+  background: linear-gradient(135deg,
+    hsl(var(--sharp-navy-600)) 0%,
+    hsl(var(--sharp-blue-600)) 100%);
+  box-shadow: 0 4px 8px hsl(var(--sharp-navy-900) / 0.3);
+  transform: translateY(-1px);
+}
+
+.sharp-btn-accent {
+  background: linear-gradient(135deg,
+    hsl(var(--sharp-gold-500)) 0%,
+    hsl(var(--sharp-gold-400)) 100%);
+  color: hsl(var(--sharp-navy-900));
+  border: none;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.sharp-btn-accent:hover {
+  background: linear-gradient(135deg,
+    hsl(var(--sharp-gold-400)) 0%,
+    hsl(var(--sharp-gold-300)) 100%);
+  transform: translateY(-1px);
+}
+
+.sharp-btn-ghost {
+  background: transparent;
+  color: hsl(var(--sharp-grey-600));
+  border: 1px solid hsl(var(--sharp-grey-300));
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s;
+}
+
+.sharp-btn-ghost:hover {
+  background: hsl(var(--sharp-grey-100));
+  border-color: hsl(var(--sharp-grey-400));
+}
+
+/* Cards */
+.sharp-card {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px hsl(var(--sharp-navy-900) / 0.08);
+  transition: all 0.2s;
+}
+
+.sharp-card:hover {
+  box-shadow: 0 4px 12px hsl(var(--sharp-navy-900) / 0.12);
+  border-color: hsl(var(--sharp-blue-200));
+}
+
+.sharp-card-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.sharp-card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: hsl(var(--sharp-navy-800));
+}
+
+.sharp-card-body {
+  padding: 1.5rem;
+}
+
+/* KPI Cards */
+.sharp-kpi {
+  background: linear-gradient(135deg,
+    hsl(var(--card)) 0%,
+    hsl(var(--sharp-grey-50)) 100%);
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.sharp-kpi::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg,
+    hsl(var(--sharp-blue-500)) 0%,
+    hsl(var(--sharp-gold-500)) 100%);
+}
+
+.sharp-kpi-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: hsl(var(--sharp-navy-800));
+  line-height: 1;
+}
+
+.sharp-kpi-label {
+  font-size: 0.875rem;
+  color: hsl(var(--sharp-grey-500));
+  margin-top: 0.5rem;
+}
+
+/* Tables */
+.sharp-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sharp-table th {
+  background: hsl(var(--sharp-grey-100));
+  color: hsl(var(--sharp-navy-700));
+  font-weight: 600;
+  text-align: left;
+  padding: 0.875rem 1rem;
+  border-bottom: 2px solid hsl(var(--sharp-grey-200));
+}
+
+.sharp-table td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid hsl(var(--sharp-grey-200));
+  color: hsl(var(--sharp-grey-700));
+}
+
+.sharp-table tbody tr:hover {
+  background: hsl(var(--sharp-blue-50));
+}
+
+/* Badges */
+.sharp-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.sharp-badge-navy {
+  background: hsl(var(--sharp-navy-100));
+  color: hsl(var(--sharp-navy-700));
+}
+
+.sharp-badge-blue {
+  background: hsl(var(--sharp-blue-100));
+  color: hsl(var(--sharp-blue-700));
+}
+
+.sharp-badge-gold {
+  background: hsl(var(--sharp-gold-100));
+  color: hsl(var(--sharp-gold-700));
+}
+
+.sharp-badge-success {
+  background: hsl(var(--sharp-success-100));
+  color: hsl(var(--sharp-success-700));
+}
+
+.sharp-badge-warning {
+  background: hsl(var(--sharp-warning-100));
+  color: hsl(var(--sharp-warning-700));
+}
+
+.sharp-badge-danger {
+  background: hsl(var(--sharp-danger-100));
+  color: hsl(var(--sharp-danger-700));
+}
+
+/* Progress Bars */
+.sharp-progress {
+  height: 0.5rem;
+  background: hsl(var(--sharp-grey-200));
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.sharp-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.5s ease;
+}
+
+.sharp-progress-fill-gradient {
+  background: linear-gradient(90deg,
+    hsl(var(--sharp-navy-600)) 0%,
+    hsl(var(--sharp-blue-500)) 50%,
+    hsl(var(--sharp-gold-500)) 100%);
+}
+
+/* Input Fields */
+.sharp-input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid hsl(var(--sharp-grey-300));
+  border-radius: 0.375rem;
+  background: hsl(var(--card));
+  color: hsl(var(--sharp-navy-800));
+  transition: all 0.2s;
+}
+
+.sharp-input:focus {
+  outline: none;
+  border-color: hsl(var(--sharp-blue-500));
+  box-shadow: 0 0 0 3px hsl(var(--sharp-blue-500) / 0.15);
+}
+
+.sharp-input::placeholder {
+  color: hsl(var(--sharp-grey-400));
+}
+
+/* Logo Text Gradient */
+.sharp-logo-text {
+  background: linear-gradient(135deg,
+    hsl(var(--sharp-navy-700)) 0%,
+    hsl(var(--sharp-blue-500)) 50%,
+    hsl(var(--sharp-blue-300)) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+}

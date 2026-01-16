@@ -164,7 +164,7 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [aiStatus, setAiStatus] = useState<'checking' | 'online' | 'offline'>('checking');
+  const [aiStatus, setAiStatus] = useState<'checking' | 'online' | 'demo'>('checking');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Check AI backend status on mount
@@ -180,9 +180,15 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
   async function checkAIStatus() {
     try {
       const health = await sovereignAI.healthCheck();
-      setAiStatus(health.llm_available ? 'online' : 'offline');
+      // Check if it's demo mode or real AI
+      if ((health as any).mode === 'demo') {
+        setAiStatus('demo');
+      } else {
+        setAiStatus(health.llm_available ? 'online' : 'demo');
+      }
     } catch {
-      setAiStatus('offline');
+      // Demo mode is always available via the API fallback
+      setAiStatus('demo');
     }
   }
 
@@ -257,10 +263,10 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
             <span className="text-xs text-muted-foreground">{getContextIcon()} {contextType}</span>
             <div className={`h-2 w-2 rounded-full ${
               aiStatus === 'online' ? 'bg-green-500' :
-              aiStatus === 'offline' ? 'bg-red-500' : 'bg-yellow-500'
+              aiStatus === 'demo' ? 'bg-blue-500' : 'bg-yellow-500'
             }`} />
             <span className="text-xs text-muted-foreground">
-              {aiStatus === 'online' ? 'Online' : aiStatus === 'offline' ? 'Offline' : 'Checking...'}
+              {aiStatus === 'online' ? 'Online' : aiStatus === 'demo' ? 'Demo Mode' : 'Connecting...'}
             </span>
           </div>
         </div>
@@ -392,7 +398,7 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask about security policies, risks, compliance..."
             className="min-h-[60px] max-h-[120px] resize-none"
-            disabled={isLoading || aiStatus === 'offline'}
+            disabled={isLoading}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -403,7 +409,7 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
           <Button
             type="submit"
             size="icon"
-            disabled={isLoading || !input.trim() || aiStatus === 'offline'}
+            disabled={isLoading || !input.trim()}
             className="h-[60px] w-[60px]"
           >
             {isLoading ? (

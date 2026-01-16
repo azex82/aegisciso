@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SHARP - Color Palette & Design System</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f9fafb;
+      color: #1f2937;
+      line-height: 1.6;
+    }
+    .container { max-width: 1400px; margin: 0 auto; padding: 40px 20px; }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 60px;
+      padding: 60px 40px;
+      background: linear-gradient(135deg, #1e3a5f 0%, #0047af 50%, #0066ff 100%);
+      border-radius: 16px;
+      color: white;
+    }
+    .logo {
+      font-size: 64px;
+      font-weight: 300;
+      letter-spacing: 8px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 50%, #93c5fd 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .logo sup { font-size: 20px; }
+    .tagline { font-size: 18px; opacity: 0.9; letter-spacing: 2px; }
+
+    /* Section */
+    .section { margin-bottom: 60px; }
+    .section-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1e3a5f;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 3px solid #ff9700;
+      display: inline-block;
+    }
+
+    /* Color Grid */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 12px;
+    }
+    .color-card {
+      border-radius: 12px;
+      overflow: hidden;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .color-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    .color-swatch {
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .color-info {
+      padding: 12px;
+      text-align: center;
+    }
+    .color-name { font-size: 12px; font-weight: 600; color: #374151; }
+    .color-hex { font-size: 11px; color: #6b7280; font-family: monospace; }
+
+    /* Palette Row */
+    .palette-row {
+      display: flex;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .palette-row .swatch {
+      flex: 1;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 500;
+      transition: flex 0.3s;
+    }
+    .palette-row .swatch:hover { flex: 2; }
+    .palette-label {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #374151;
+    }
+
+    /* Gradient Section */
+    .gradient-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .gradient-card {
+      border-radius: 12px;
+      overflow: hidden;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .gradient-preview {
+      height: 100px;
+    }
+    .gradient-info {
+      padding: 16px;
+    }
+    .gradient-name { font-weight: 600; color: #1e3a5f; margin-bottom: 4px; }
+    .gradient-code { font-size: 11px; color: #6b7280; font-family: monospace; }
+
+    /* Usage Examples */
+    .examples-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    .example-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .example-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #6b7280;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      margin: 4px;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #1e3a5f 0%, #0047af 100%);
+      color: white;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(30,58,95,0.3); }
+    .btn-secondary {
+      background: #0047af;
+      color: white;
+    }
+    .btn-accent {
+      background: linear-gradient(135deg, #ff9700 0%, #ffca28 100%);
+      color: #1e3a5f;
+    }
+    .btn-accent:hover { box-shadow: 0 0 20px rgba(255,151,0,0.4); }
+    .btn-ghost {
+      background: transparent;
+      border: 2px solid #d2d5da;
+      color: #374151;
+    }
+    .btn-ghost:hover { border-color: #0047af; color: #0047af; }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+      margin: 4px;
+    }
+    .badge-navy { background: #dce5ef; color: #1e3a5f; }
+    .badge-blue { background: #cce0ff; color: #0047af; }
+    .badge-gold { background: #fff3c4; color: #cc7700; }
+    .badge-success { background: #d1fae5; color: #047857; }
+    .badge-warning { background: #fef3c7; color: #b45309; }
+    .badge-danger { background: #fee2e2; color: #b91c1c; }
+
+    /* Risk Indicators */
+    .risk-row { display: flex; gap: 8px; margin-top: 12px; }
+    .risk-box {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .risk-critical { background: #dc2626; }
+    .risk-high { background: #ea580c; }
+    .risk-medium { background: #ff9700; }
+    .risk-low { background: #10b981; }
+
+    /* Dark Mode Preview */
+    .dark-preview {
+      background: #0f1e32;
+      border-radius: 12px;
+      padding: 32px;
+      color: #f9fafb;
+    }
+    .dark-preview .card {
+      background: #1e3a5f;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 16px;
+    }
+    .dark-preview h3 { color: #93c5fd; }
+    .dark-preview p { color: #9ca3af; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">SHARP<sup>™</sup></div>
+      <div class="tagline">Enterprise Security Platform</div>
+    </div>
+
+    <!-- Primary Brand Colors -->
+    <div class="section">
+      <h2 class="section-title">Brand Colors</h2>
+
+      <div class="palette-label">Navy Blue (Primary)</div>
+      <div class="palette-row">
+        <div class="swatch" style="background:#f0f4f8;color:#1e3a5f">50</div>
+        <div class="swatch" style="background:#dce5ef;color:#1e3a5f">100</div>
+        <div class="swatch" style="background:#b8cade;color:#1e3a5f">200</div>
+        <div class="swatch" style="background:#8aa8c7;color:#1e3a5f">300</div>
+        <div class="swatch" style="background:#5a82ad;color:#fff">400</div>
+        <div class="swatch" style="background:#3d6591;color:#fff">500</div>
+        <div class="swatch" style="background:#2f4f75;color:#fff">600</div>
+        <div class="swatch" style="background:#1e3a5f;color:#fff">700 ★</div>
+        <div class="swatch" style="background:#162c49;color:#fff">800</div>
+        <div class="swatch" style="background:#0f1e32;color:#fff">900</div>
+        <div class="swatch" style="background:#080f1a;color:#fff">950</div>
+      </div>
+
+      <div class="palette-label">SABIC Blue</div>
+      <div class="palette-row">
+        <div class="swatch" style="background:#e6f0ff;color:#0047af">50</div>
+        <div class="swatch" style="background:#cce0ff;color:#0047af">100</div>
+        <div class="swatch" style="background:#99c2ff;color:#0047af">200</div>
+        <div class="swatch" style="background:#66a3ff;color:#0047af">300</div>
+        <div class="swatch" style="background:#3385ff;color:#fff">400</div>
+        <div class="swatch" style="background:#0066ff;color:#fff">500</div>
+        <div class="swatch" style="background:#0052cc;color:#fff">600</div>
+        <div class="swatch" style="background:#0047af;color:#fff">700 ★</div>
+        <div class="swatch" style="background:#003a8f;color:#fff">800</div>
+        <div class="swatch" style="background:#002d70;color:#fff">900</div>
+      </div>
+
+      <div class="palette-label">SABIC Gold/Yellow (Accent)</div>
+      <div class="palette-row">
+        <div class="swatch" style="background:#fffbeb;color:#804a00">50</div>
+        <div class="swatch" style="background:#fff3c4;color:#804a00">100</div>
+        <div class="swatch" style="background:#ffe588;color:#804a00">200</div>
+        <div class="swatch" style="background:#ffd54f;color:#804a00">300</div>
+        <div class="swatch" style="background:#ffca28;color:#804a00">400</div>
+        <div class="swatch" style="background:#ff9700;color:#fff">500 ★</div>
+        <div class="swatch" style="background:#e68600;color:#fff">600</div>
+        <div class="swatch" style="background:#cc7700;color:#fff">700</div>
+        <div class="swatch" style="background:#a66000;color:#fff">800</div>
+        <div class="swatch" style="background:#804a00;color:#fff">900</div>
+      </div>
+
+      <div class="palette-label">Grey Scale</div>
+      <div class="palette-row">
+        <div class="swatch" style="background:#f9fafb;color:#374151">50</div>
+        <div class="swatch" style="background:#f4f5f7;color:#374151">100</div>
+        <div class="swatch" style="background:#e5e7eb;color:#374151">200</div>
+        <div class="swatch" style="background:#d2d5da;color:#374151">300</div>
+        <div class="swatch" style="background:#9ca3af;color:#374151">400</div>
+        <div class="swatch" style="background:#6b7280;color:#fff">500</div>
+        <div class="swatch" style="background:#4b5563;color:#fff">600</div>
+        <div class="swatch" style="background:#374151;color:#fff">700</div>
+        <div class="swatch" style="background:#1f2937;color:#fff">800</div>
+        <div class="swatch" style="background:#111827;color:#fff">900</div>
+      </div>
+    </div>
+
+    <!-- Status Colors -->
+    <div class="section">
+      <h2 class="section-title">Status Colors</h2>
+      <div class="color-grid">
+        <div class="color-card">
+          <div class="color-swatch" style="background:#10b981;color:#fff">Success</div>
+          <div class="color-info"><div class="color-name">Success</div><div class="color-hex">#10b981</div></div>
+        </div>
+        <div class="color-card">
+          <div class="color-swatch" style="background:#f59e0b;color:#fff">Warning</div>
+          <div class="color-info"><div class="color-name">Warning</div><div class="color-hex">#f59e0b</div></div>
+        </div>
+        <div class="color-card">
+          <div class="color-swatch" style="background:#ef4444;color:#fff">Danger</div>
+          <div class="color-info"><div class="color-name">Danger</div><div class="color-hex">#ef4444</div></div>
+        </div>
+        <div class="color-card">
+          <div class="color-swatch" style="background:#06b6d4;color:#fff">Info</div>
+          <div class="color-info"><div class="color-name">Info</div><div class="color-hex">#06b6d4</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gradients -->
+    <div class="section">
+      <h2 class="section-title">Gradients</h2>
+      <div class="gradient-grid">
+        <div class="gradient-card">
+          <div class="gradient-preview" style="background:linear-gradient(135deg,#1e3a5f 0%,#0047af 50%,#0066ff 100%)"></div>
+          <div class="gradient-info">
+            <div class="gradient-name">SHARP Gradient</div>
+            <div class="gradient-code">Navy → SABIC Blue → Blue</div>
+          </div>
+        </div>
+        <div class="gradient-card">
+          <div class="gradient-preview" style="background:linear-gradient(135deg,#ff9700 0%,#ffca28 100%)"></div>
+          <div class="gradient-info">
+            <div class="gradient-name">Gold Gradient</div>
+            <div class="gradient-code">Gold → Light Gold</div>
+          </div>
+        </div>
+        <div class="gradient-card">
+          <div class="gradient-preview" style="background:linear-gradient(135deg,#1e3a5f 0%,#0047af 50%,#ff9700 100%)"></div>
+          <div class="gradient-info">
+            <div class="gradient-name">Navy to Gold</div>
+            <div class="gradient-code">Navy → Blue → Gold</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UI Components -->
+    <div class="section">
+      <h2 class="section-title">UI Components</h2>
+      <div class="examples-grid">
+        <div class="example-card">
+          <div class="example-title">Buttons</div>
+          <button class="btn btn-primary">Primary</button>
+          <button class="btn btn-secondary">Secondary</button>
+          <button class="btn btn-accent">Accent</button>
+          <button class="btn btn-ghost">Ghost</button>
+        </div>
+
+        <div class="example-card">
+          <div class="example-title">Badges</div>
+          <span class="badge badge-navy">Navy</span>
+          <span class="badge badge-blue">Blue</span>
+          <span class="badge badge-gold">Gold</span>
+          <span class="badge badge-success">Success</span>
+          <span class="badge badge-warning">Warning</span>
+          <span class="badge badge-danger">Danger</span>
+        </div>
+
+        <div class="example-card">
+          <div class="example-title">Risk Levels</div>
+          <div class="risk-row">
+            <div class="risk-box risk-critical">Critical</div>
+            <div class="risk-box risk-high">High</div>
+            <div class="risk-box risk-medium">Medium</div>
+            <div class="risk-box risk-low">Low</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dark Mode Preview -->
+    <div class="section">
+      <h2 class="section-title">Dark Mode Preview</h2>
+      <div class="dark-preview">
+        <h3 style="font-size:20px;margin-bottom:8px;">Dashboard Header</h3>
+        <p>This is how components appear in dark mode with the SHARP color scheme.</p>
+        <div class="card">
+          <h4 style="color:#ffca28;font-size:14px;margin-bottom:8px;">Security Score</h4>
+          <p style="font-size:32px;font-weight:700;color:#10b981;">85%</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Color Codes Reference -->
+    <div class="section">
+      <h2 class="section-title">Quick Reference</h2>
+      <div style="background:white;border-radius:12px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:2px solid #e5e7eb;">
+              <th style="text-align:left;padding:12px;color:#1e3a5f;">Color</th>
+              <th style="text-align:left;padding:12px;color:#1e3a5f;">HEX</th>
+              <th style="text-align:left;padding:12px;color:#1e3a5f;">Tailwind Class</th>
+              <th style="text-align:left;padding:12px;color:#1e3a5f;">Usage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #e5e7eb;">
+              <td style="padding:12px;"><span style="display:inline-block;width:20px;height:20px;background:#1e3a5f;border-radius:4px;vertical-align:middle;margin-right:8px;"></span>Navy 700</td>
+              <td style="padding:12px;font-family:monospace;">#1e3a5f</td>
+              <td style="padding:12px;font-family:monospace;">navy-700</td>
+              <td style="padding:12px;">Primary brand, headers</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e5e7eb;">
+              <td style="padding:12px;"><span style="display:inline-block;width:20px;height:20px;background:#0047af;border-radius:4px;vertical-align:middle;margin-right:8px;"></span>SABIC Blue</td>
+              <td style="padding:12px;font-family:monospace;">#0047af</td>
+              <td style="padding:12px;font-family:monospace;">sabic-blue-700</td>
+              <td style="padding:12px;">Links, interactive</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e5e7eb;">
+              <td style="padding:12px;"><span style="display:inline-block;width:20px;height:20px;background:#ff9700;border-radius:4px;vertical-align:middle;margin-right:8px;"></span>Gold 500</td>
+              <td style="padding:12px;font-family:monospace;">#ff9700</td>
+              <td style="padding:12px;font-family:monospace;">gold-500</td>
+              <td style="padding:12px;">Accent, CTAs, highlights</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e5e7eb;">
+              <td style="padding:12px;"><span style="display:inline-block;width:20px;height:20px;background:#6b7280;border-radius:4px;vertical-align:middle;margin-right:8px;"></span>Grey 500</td>
+              <td style="padding:12px;font-family:monospace;">#6b7280</td>
+              <td style="padding:12px;font-family:monospace;">grey-500</td>
+              <td style="padding:12px;">Secondary text, borders</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

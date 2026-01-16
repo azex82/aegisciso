@@ -53,38 +53,55 @@ export function SharpLogoSVG({
   const getGradient = () => (
     <defs>
       <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" style={{ stopColor: '#1a237e' }} />
-        <stop offset="30%" style={{ stopColor: '#1565c0' }} />
-        <stop offset="60%" style={{ stopColor: '#42a5f5' }} />
-        <stop offset="100%" style={{ stopColor: '#90caf9' }} />
+        <stop offset="0%" style={{ stopColor: '#1e3a5f' }} />
+        <stop offset="40%" style={{ stopColor: '#0047af' }} />
+        <stop offset="70%" style={{ stopColor: '#0066ff' }} />
+        <stop offset="100%" style={{ stopColor: '#3385ff' }} />
       </linearGradient>
     </defs>
   );
 
   const getFillColor = () => {
     if (color === 'white') return '#ffffff';
-    if (color === 'dark') return '#1a237e';
+    if (color === 'dark') return '#1e3a5f';
     return `url(#${gradientId})`;
   };
 
   if (variant === 'icon') {
+    const goldGradientId = `goldAccent-${Math.random().toString(36).substr(2, 9)}`;
     return (
-      <svg viewBox="0 0 60 60" className={className} aria-label="SHARP">
+      <svg viewBox="0 0 80 80" className={className} aria-label="SHARP">
         <defs>
           <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style={{ stopColor: '#1a237e' }} />
-            <stop offset="50%" style={{ stopColor: '#1565c0' }} />
-            <stop offset="100%" style={{ stopColor: '#42a5f5' }} />
+            <stop offset="0%" style={{ stopColor: '#1e3a5f' }} />
+            <stop offset="50%" style={{ stopColor: '#0047af' }} />
+            <stop offset="100%" style={{ stopColor: '#0066ff' }} />
+          </linearGradient>
+          <linearGradient id={goldGradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{ stopColor: '#ff9700' }} />
+            <stop offset="100%" style={{ stopColor: '#ffca28' }} />
           </linearGradient>
         </defs>
-        <circle cx="30" cy="30" r="28" fill={color === 'white' ? '#ffffff' : `url(#${gradientId})`} />
+        {/* Shield shape */}
+        <path
+          d="M40 4 L76 18 L76 50 C76 68 40 78 40 78 C40 78 4 68 4 50 L4 18 Z"
+          fill={color === 'white' ? '#ffffff' : `url(#${gradientId})`}
+        />
+        {/* Gold accent arc */}
+        <path
+          d="M40 12 L68 24 L68 48 C68 62 40 70 40 70"
+          stroke={`url(#${goldGradientId})`}
+          strokeWidth="2.5"
+          fill="none"
+          opacity="0.5"
+        />
         <text
-          x="30"
-          y="42"
+          x="40"
+          y="54"
           fontFamily="Arial, Helvetica, sans-serif"
-          fontSize="36"
-          fontWeight="300"
-          fill={color === 'white' ? '#1565c0' : 'white'}
+          fontSize="40"
+          fontWeight="bold"
+          fill={color === 'white' ? '#0047af' : 'white'}
           textAnchor="middle"
         >
           S
@@ -95,35 +112,47 @@ export function SharpLogoSVG({
 
   if (variant === 'full') {
     const iconGradientId = `iconGradient-${Math.random().toString(36).substr(2, 9)}`;
+    const goldGradientId = `goldAccent-${Math.random().toString(36).substr(2, 9)}`;
     return (
-      <svg viewBox="0 0 380 100" className={className} aria-label="SHARP - Enterprise Security Platform">
+      <svg viewBox="0 0 400 120" className={className} aria-label="SHARP - Enterprise Security Platform">
         <defs>
           <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style={{ stopColor: color === 'white' ? '#ffffff' : '#0d47a1' }} />
-            <stop offset="25%" style={{ stopColor: color === 'white' ? '#ffffff' : '#1565c0' }} />
-            <stop offset="50%" style={{ stopColor: color === 'white' ? '#ffffff' : '#1e88e5' }} />
-            <stop offset="75%" style={{ stopColor: color === 'white' ? '#e3f2fd' : '#42a5f5' }} />
-            <stop offset="100%" style={{ stopColor: color === 'white' ? '#bbdefb' : '#64b5f6' }} />
+            <stop offset="0%" style={{ stopColor: color === 'white' ? '#ffffff' : '#1e3a5f' }} />
+            <stop offset="40%" style={{ stopColor: color === 'white' ? '#ffffff' : '#0047af' }} />
+            <stop offset="70%" style={{ stopColor: color === 'white' ? '#e3f2fd' : '#0066ff' }} />
+            <stop offset="100%" style={{ stopColor: color === 'white' ? '#cce0ff' : '#3385ff' }} />
           </linearGradient>
           <linearGradient id={iconGradientId} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style={{ stopColor: color === 'white' ? '#ffffff' : '#1565c0' }} />
-            <stop offset="100%" style={{ stopColor: color === 'white' ? '#e3f2fd' : '#42a5f5' }} />
+            <stop offset="0%" style={{ stopColor: color === 'white' ? '#ffffff' : '#1e3a5f' }} />
+            <stop offset="50%" style={{ stopColor: color === 'white' ? '#e3f2fd' : '#0047af' }} />
+            <stop offset="100%" style={{ stopColor: color === 'white' ? '#cce0ff' : '#0066ff' }} />
+          </linearGradient>
+          <linearGradient id={goldGradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{ stopColor: '#ff9700' }} />
+            <stop offset="100%" style={{ stopColor: '#ffca28' }} />
           </linearGradient>
         </defs>
         {/* Shield icon */}
-        <g transform="translate(15, 15)">
+        <g transform="translate(20, 18)">
           <path
-            d="M25 0 L50 10 L50 35 C50 50 25 60 25 60 C25 60 0 50 0 35 L0 10 Z"
+            d="M30 0 L60 12 L60 42 C60 60 30 72 30 72 C30 72 0 60 0 42 L0 12 Z"
             fill={`url(#${iconGradientId})`}
-            opacity="0.9"
+          />
+          {/* Gold accent line */}
+          <path
+            d="M30 8 L52 17 L52 40 C52 54 30 64 30 64"
+            stroke={`url(#${goldGradientId})`}
+            strokeWidth="2"
+            fill="none"
+            opacity="0.6"
           />
           <text
-            x="25"
-            y="40"
+            x="30"
+            y="48"
             fontFamily="Arial, Helvetica, sans-serif"
-            fontSize="28"
+            fontSize="32"
             fontWeight="bold"
-            fill={color === 'white' ? '#1565c0' : 'white'}
+            fill={color === 'white' ? '#0047af' : 'white'}
             textAnchor="middle"
           >
             S
@@ -131,35 +160,35 @@ export function SharpLogoSVG({
         </g>
         {/* SHARP text */}
         <text
-          x="80"
-          y="55"
+          x="95"
+          y="60"
           fontFamily="Arial, Helvetica, sans-serif"
-          fontSize="48"
+          fontSize="52"
           fontWeight="300"
-          letterSpacing="5"
+          letterSpacing="6"
           fill={`url(#${gradientId})`}
         >
           SHARP
         </text>
         {/* TM */}
         <text
-          x="315"
-          y="28"
+          x="352"
+          y="30"
           fontFamily="Arial, Helvetica, sans-serif"
-          fontSize="12"
-          fill={color === 'white' ? '#e3f2fd' : '#1565c0'}
+          fontSize="14"
+          fill={color === 'white' ? '#cce0ff' : '#0047af'}
         >
           ™
         </text>
         {/* Tagline */}
         <text
-          x="80"
-          y="78"
+          x="95"
+          y="92"
           fontFamily="Arial, Helvetica, sans-serif"
-          fontSize="13"
+          fontSize="15"
           fontWeight="400"
-          letterSpacing="1"
-          fill={color === 'white' ? 'rgba(255,255,255,0.7)' : '#757575'}
+          letterSpacing="1.5"
+          fill={color === 'white' ? 'rgba(255,255,255,0.7)' : '#6b7280'}
         >
           Enterprise Security Platform
         </text>
@@ -169,36 +198,36 @@ export function SharpLogoSVG({
 
   // Default variant
   return (
-    <svg viewBox="0 0 300 80" className={className} aria-label="SHARP">
+    <svg viewBox="0 0 320 100" className={className} aria-label="SHARP">
       {getGradient()}
       <text
         x="20"
-        y="45"
+        y="55"
         fontFamily="Arial, Helvetica, sans-serif"
-        fontSize="42"
+        fontSize="48"
         fontWeight="300"
-        letterSpacing="4"
+        letterSpacing="6"
         fill={getFillColor()}
       >
         SHARP
       </text>
       <text
-        x="235"
-        y="22"
+        x="262"
+        y="28"
         fontFamily="Arial, Helvetica, sans-serif"
-        fontSize="11"
-        fill={color === 'white' ? 'rgba(255,255,255,0.7)' : '#1565c0'}
+        fontSize="12"
+        fill={color === 'white' ? 'rgba(255,255,255,0.7)' : '#0047af'}
       >
         ™
       </text>
       <text
         x="20"
-        y="68"
+        y="78"
         fontFamily="Arial, Helvetica, sans-serif"
-        fontSize="12"
+        fontSize="14"
         fontWeight="400"
-        letterSpacing="0.5"
-        fill={color === 'white' ? 'rgba(255,255,255,0.6)' : '#757575'}
+        letterSpacing="1"
+        fill={color === 'white' ? 'rgba(255,255,255,0.6)' : '#6b7280'}
       >
         Enterprise Security Platform
       </text>

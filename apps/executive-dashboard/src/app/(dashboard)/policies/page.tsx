@@ -3,6 +3,8 @@ import { Button, Card, CardContent, CardHeader, CardTitle, Badge, Table, TableBo
 import { Plus, FileText, AlertTriangle, Clock, CheckCircle, XCircle, Filter, Search, Download, Calendar, User } from 'lucide-react';
 import Link from 'next/link';
 import { getPolicyStatusColor, formatDate } from '@aegisciso/shared';
+import { PolicyFilters } from '@/components/policies/policy-filters';
+import { ExportButton } from '@/components/risks/export-button';
 
 async function getPoliciesData() {
   const [policies, policyStats] = await Promise.all([
@@ -89,8 +91,42 @@ function getValidityBadge(policy: any) {
   return <Badge variant="secondary" className="text-[10px] bg-green-100 text-green-800"><CheckCircle className="h-3 w-3 mr-1" />Valid</Badge>;
 }
 
-export default async function PoliciesPage() {
-  const { policies, stats } = await getPoliciesData();
+interface PageProps {
+  searchParams: { filter?: string; search?: string };
+}
+
+export default async function PoliciesPage({ searchParams }: PageProps) {
+  const { policies: allPolicies, stats } = await getPoliciesData();
+
+  // Filter policies based on URL params
+  const filter = searchParams.filter || 'all';
+  const search = searchParams.search?.toLowerCase() || '';
+  const now = new Date();
+  const thirtyDaysFromNow = new Date();
+  thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+
+  const policies = allPolicies.filter((policy) => {
+    // Apply status filter
+    let matchesFilter = true;
+    if (filter === 'published') matchesFilter = policy.status === 'PUBLISHED';
+    else if (filter === 'draft') matchesFilter = policy.status === 'DRAFT';
+    else if (filter === 'review') {
+      matchesFilter = policy.reviewDate && new Date(policy.reviewDate) <= thirtyDaysFromNow;
+    }
+    else if (filter === 'expiring') {
+      const expiryDate = policy.expiryDate ? new Date(policy.expiryDate) : null;
+      matchesFilter = expiryDate && expiryDate <= thirtyDaysFromNow && expiryDate > now;
+    }
+
+    // Apply search filter
+    const matchesSearch = !search ||
+      policy.title.toLowerCase().includes(search) ||
+      policy.code.toLowerCase().includes(search) ||
+      policy.category?.toLowerCase().includes(search) ||
+      policy.description?.toLowerCase().includes(search);
+
+    return matchesFilter && matchesSearch;
+  });
 
   return (
     <div className="space-y-6">
@@ -103,10 +139,21 @@ export default async function PoliciesPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
+          <ExportButton
+            data={allPolicies}
+            filename="policies-export"
+            headers={['Code', 'Title', 'Status', 'Maturity', 'Category', 'Framework', 'Owner', 'Review Date']}
+            getRow={(policy) => [
+              policy.code,
+              policy.title,
+              policy.status,
+              `Level ${policy.maturityLevel}`,
+              policy.category || '',
+              policy.frameworkSource || '',
+              policy.owner?.name || '',
+              policy.reviewDate ? formatDate(policy.reviewDate) : ''
+            ]}
+          />
           <Link href="/policies/new">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
@@ -182,29 +229,7 @@ export default async function PoliciesPage() {
       {/* Filters Row */}
       <Card>
         <CardContent className="py-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Filter className="h-4 w-4" />
-              <span>Filter:</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Badge variant="outline" className="cursor-pointer hover:bg-muted">All Policies</Badge>
-              <Badge variant="outline" className="cursor-pointer hover:bg-muted">Published</Badge>
-              <Badge variant="outline" className="cursor-pointer hover:bg-muted">Draft</Badge>
-              <Badge variant="outline" className="cursor-pointer hover:bg-muted">Needs Review</Badge>
-              <Badge variant="outline" className="cursor-pointer hover:bg-muted">Expiring Soon</Badge>
-            </div>
-            <div className="ml-auto flex items-center gap-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search policies..."
-                  className="pl-9 pr-4 py-1.5 text-sm border rounded-md bg-background w-64"
-                />
-              </div>
-            </div>
-          </div>
+          <PolicyFilters policies={allPolicies} />
         </CardContent>
       </Card>
 

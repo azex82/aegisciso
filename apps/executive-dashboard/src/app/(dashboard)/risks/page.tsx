@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Table, TableBo
 import { ShieldAlert, FileWarning, CheckCircle, AlertTriangle, Clock, Plus, Download, Filter, Search, User, Calendar, Target, ArrowRight, Activity, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { getRiskLevel, getRiskColor, formatDate } from '@aegisciso/shared';
+import { RiskFilters } from '@/components/risks/risk-filters';
+import { ExportButton } from '@/components/risks/export-button';
 
 async function getDashboardData() {
   const [risks, findings, exceptions, remediationPlans] = await Promise.all([
@@ -74,8 +76,34 @@ function getRiskCellColor(score: number): string {
   return '#16a34a';                   // Low - Green
 }
 
-export default async function RisksPage() {
-  const { risks, findings, remediationPlans, stats } = await getDashboardData();
+interface PageProps {
+  searchParams: { filter?: string; search?: string };
+}
+
+export default async function RisksPage({ searchParams }: PageProps) {
+  const { risks: allRisks, findings, remediationPlans, stats } = await getDashboardData();
+
+  // Filter risks based on URL params
+  const filter = searchParams.filter || 'all';
+  const search = searchParams.search?.toLowerCase() || '';
+
+  const risks = allRisks.filter((risk) => {
+    // Apply severity filter
+    let matchesFilter = true;
+    if (filter === 'critical') matchesFilter = risk.inherentRiskScore >= 20;
+    else if (filter === 'high') matchesFilter = risk.inherentRiskScore >= 12 && risk.inherentRiskScore < 20;
+    else if (filter === 'medium') matchesFilter = risk.inherentRiskScore >= 6 && risk.inherentRiskScore < 12;
+    else if (filter === 'low') matchesFilter = risk.inherentRiskScore < 6;
+
+    // Apply search filter
+    const matchesSearch = !search ||
+      risk.title.toLowerCase().includes(search) ||
+      risk.code.toLowerCase().includes(search) ||
+      risk.category?.toLowerCase().includes(search) ||
+      risk.description?.toLowerCase().includes(search);
+
+    return matchesFilter && matchesSearch;
+  });
 
   const now = new Date();
   const overdueRemediations = remediationPlans.filter((r) => new Date(r.dueDate) < now);
@@ -97,10 +125,21 @@ export default async function RisksPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
+          <ExportButton
+            data={allRisks}
+            filename="risks-export"
+            headers={['Code', 'Title', 'Category', 'Priority', 'Inherent Score', 'Residual Score', 'Status', 'Owner']}
+            getRow={(risk) => [
+              risk.code,
+              risk.title,
+              risk.category || '',
+              `P${risk.priority}`,
+              risk.inherentRiskScore,
+              risk.residualRiskScore || '',
+              risk.status,
+              risk.owner?.name || ''
+            ]}
+          />
           <Link href="/risks/new">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
@@ -422,29 +461,7 @@ export default async function RisksPage() {
       {/* Filters */}
       <Card>
         <CardContent className="py-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Filter className="h-4 w-4" />
-              <span>Filter:</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Badge variant="outline" className="cursor-pointer hover:bg-muted">All Risks</Badge>
-              <Badge variant="outline" className="cursor-pointer hover:bg-muted bg-red-50 text-red-800">Critical</Badge>
-              <Badge variant="outline" className="cursor-pointer hover:bg-muted bg-orange-50 text-orange-800">High</Badge>
-              <Badge variant="outline" className="cursor-pointer hover:bg-muted bg-amber-50 text-amber-800">Medium</Badge>
-              <Badge variant="outline" className="cursor-pointer hover:bg-muted bg-green-50 text-green-800">Low</Badge>
-            </div>
-            <div className="ml-auto flex items-center gap-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search risks..."
-                  className="pl-9 pr-4 py-1.5 text-sm border rounded-md bg-background w-64"
-                />
-              </div>
-            </div>
-          </div>
+          <RiskFilters risks={allRisks} />
         </CardContent>
       </Card>
 

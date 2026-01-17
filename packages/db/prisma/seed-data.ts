@@ -298,7 +298,7 @@ const strategyObjectives = [
     priority: 'CRITICAL',
     status: 'AT_RISK',
     progressPercent: 45,
-    fiscalYear: '2025',
+    fiscalYear: 'FY2026',
     quarter: 'Q1',
   },
   {
@@ -309,7 +309,7 @@ const strategyObjectives = [
     priority: 'CRITICAL',
     status: 'ON_TRACK',
     progressPercent: 72,
-    fiscalYear: '2025',
+    fiscalYear: 'FY2026',
     quarter: 'Q1',
   },
   {
@@ -320,7 +320,7 @@ const strategyObjectives = [
     priority: 'HIGH',
     status: 'DELAYED',
     progressPercent: 30,
-    fiscalYear: '2025',
+    fiscalYear: 'FY2026',
     quarter: 'Q2',
   },
   {
@@ -331,7 +331,7 @@ const strategyObjectives = [
     priority: 'HIGH',
     status: 'ON_TRACK',
     progressPercent: 85,
-    fiscalYear: '2025',
+    fiscalYear: 'FY2026',
     quarter: 'Q1',
   },
   {
@@ -342,7 +342,7 @@ const strategyObjectives = [
     priority: 'HIGH',
     status: 'ON_TRACK',
     progressPercent: 60,
-    fiscalYear: '2025',
+    fiscalYear: 'FY2026',
     quarter: 'Q2',
   },
 ];
@@ -613,7 +613,7 @@ async function main() {
         fiscalYear: objData.fiscalYear,
         quarter: objData.quarter,
         ownerId: users[0].id,
-        targetDate: new Date('2025-12-31'),
+        targetDate: new Date('2026-12-31'),
       },
     });
   }

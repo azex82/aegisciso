@@ -519,9 +519,9 @@ async function main() {
         status: 'PUBLISHED',
         version: '1.0',
         ownerId: users[0].id,
-        effectiveDate: new Date('2024-01-01'),
-        reviewDate: new Date('2025-06-01'),
-        expiryDate: new Date('2026-01-01'),
+        effectiveDate: new Date('2025-06-01'),
+        reviewDate: new Date('2026-06-01'),
+        expiryDate: new Date('2027-06-01'),
         validityStatus: 'VALID',
       },
     });

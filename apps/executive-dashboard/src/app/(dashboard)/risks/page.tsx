@@ -125,21 +125,7 @@ export default async function RisksPage({ searchParams }: PageProps) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ExportButton
-            data={allRisks}
-            filename="risks-export"
-            headers={['Code', 'Title', 'Category', 'Priority', 'Inherent Score', 'Residual Score', 'Status', 'Owner']}
-            getRow={(risk) => [
-              risk.code,
-              risk.title,
-              risk.category || '',
-              `P${risk.priority}`,
-              risk.inherentRiskScore,
-              risk.residualRiskScore || '',
-              risk.status,
-              risk.owner?.name || ''
-            ]}
-          />
+          <ExportButton data={allRisks} filename="risks-export" />
           <Link href="/risks/new">
             <Button>
               <Plus className="mr-2 h-4 w-4" />

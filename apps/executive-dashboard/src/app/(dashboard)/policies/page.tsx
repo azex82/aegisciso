@@ -4,7 +4,7 @@ import { Plus, FileText, AlertTriangle, Clock, CheckCircle, XCircle, Filter, Sea
 import Link from 'next/link';
 import { getPolicyStatusColor, formatDate } from '@aegisciso/shared';
 import { PolicyFilters } from '@/components/policies/policy-filters';
-import { ExportButton } from '@/components/risks/export-button';
+import { PolicyExportButton } from '@/components/policies/export-button';
 
 async function getPoliciesData() {
   const [policies, policyStats] = await Promise.all([
@@ -139,21 +139,7 @@ export default async function PoliciesPage({ searchParams }: PageProps) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ExportButton
-            data={allPolicies}
-            filename="policies-export"
-            headers={['Code', 'Title', 'Status', 'Maturity', 'Category', 'Framework', 'Owner', 'Review Date']}
-            getRow={(policy) => [
-              policy.code,
-              policy.title,
-              policy.status,
-              `Level ${policy.maturityLevel}`,
-              policy.category || '',
-              policy.frameworkSource || '',
-              policy.owner?.name || '',
-              policy.reviewDate ? formatDate(policy.reviewDate) : ''
-            ]}
-          />
+          <PolicyExportButton data={allPolicies} filename="policies-export" />
           <Link href="/policies/new">
             <Button>
               <Plus className="mr-2 h-4 w-4" />

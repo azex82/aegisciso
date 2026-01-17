@@ -3,35 +3,35 @@
 import { Button } from '@aegisciso/ui';
 import { Download } from 'lucide-react';
 
-interface Risk {
+interface Policy {
   code: string;
   title: string;
-  category: string | null;
-  priority: number;
-  inherentRiskScore: number;
-  residualRiskScore: number | null;
   status: string;
+  maturityLevel: number;
+  category: string | null;
+  frameworkSource: string | null;
+  reviewDate: Date | null;
   owner?: { name: string | null } | null;
 }
 
-interface ExportButtonProps {
-  data: Risk[];
+interface PolicyExportButtonProps {
+  data: Policy[];
   filename: string;
 }
 
-export function ExportButton({ data, filename }: ExportButtonProps) {
+export function PolicyExportButton({ data, filename }: PolicyExportButtonProps) {
   const handleExport = () => {
-    const headers = ['Code', 'Title', 'Category', 'Priority', 'Inherent Score', 'Residual Score', 'Status', 'Owner'];
+    const headers = ['Code', 'Title', 'Status', 'Maturity', 'Category', 'Framework', 'Owner', 'Review Date'];
 
-    const rows = data.map(risk => [
-      risk.code,
-      risk.title,
-      risk.category || '',
-      `P${risk.priority}`,
-      risk.inherentRiskScore,
-      risk.residualRiskScore || '',
-      risk.status,
-      risk.owner?.name || ''
+    const rows = data.map(policy => [
+      policy.code,
+      policy.title,
+      policy.status,
+      `Level ${policy.maturityLevel}`,
+      policy.category || '',
+      policy.frameworkSource || '',
+      policy.owner?.name || '',
+      policy.reviewDate ? new Date(policy.reviewDate).toLocaleDateString() : ''
     ]);
 
     const csvContent = [

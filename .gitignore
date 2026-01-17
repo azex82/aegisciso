@@ -56,3 +56,4 @@ sovereign-ai/venv/
 *.bin
 __pycache__/
 *.pyc
+__pycache__/

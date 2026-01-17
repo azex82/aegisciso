@@ -2,6 +2,18 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@aegisciso/db';
+import { z } from 'zod';
+
+// Input validation schema
+const createRiskSchema = z.object({
+  title: z.string().min(3, 'Title must be at least 3 characters').max(200, 'Title too long'),
+  description: z.string().min(10, 'Description must be at least 10 characters').max(5000, 'Description too long'),
+  category: z.string().min(1, 'Category is required').max(100),
+  source: z.string().min(1, 'Source is required').max(100),
+  inherentLikelihood: z.number().int().min(1).max(5),
+  inherentImpact: z.number().int().min(1).max(5),
+  treatmentPlan: z.string().max(5000).optional().nullable(),
+});
 
 export async function POST(request: Request) {
   try {
@@ -10,7 +22,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await request.json();
+    // Parse and validate input
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+
+    const validationResult = createRiskSchema.safeParse(body);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: validationResult.error.flatten().fieldErrors },
+        { status: 400 }
+      );
+    }
+
     const {
       title,
       description,
@@ -19,7 +46,7 @@ export async function POST(request: Request) {
       inherentLikelihood,
       inherentImpact,
       treatmentPlan,
-    } = body;
+    } = validationResult.data;
 
     // Generate a unique code
     const lastRisk = await prisma.risk.findFirst({
@@ -35,6 +62,7 @@ export async function POST(request: Request) {
       where: { email: session.user.email! },
     });
 
+    const riskScore = inherentLikelihood * inherentImpact;
     const risk = await prisma.risk.create({
       data: {
         code,
@@ -44,11 +72,11 @@ export async function POST(request: Request) {
         source,
         inherentLikelihood,
         inherentImpact,
-        inherentRiskScore: inherentLikelihood * inherentImpact,
+        inherentRiskScore: riskScore,
         status: 'IDENTIFIED',
         treatmentPlan,
         treatmentStatus: treatmentPlan ? 'IN_PROGRESS' : 'NOT_STARTED',
-        priority: inherentLikelihood * inherentImpact >= 20 ? 1 : inherentLikelihood * inherentImpact >= 12 ? 2 : 3,
+        priority: riskScore >= 20 ? 1 : riskScore >= 12 ? 2 : 3,
         ownerId: user?.id,
       },
     });

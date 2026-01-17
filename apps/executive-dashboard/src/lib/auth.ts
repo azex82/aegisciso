@@ -1,11 +1,23 @@
 import { type NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from '@aegisciso/db';
+import bcrypt from 'bcryptjs';
 import { createHash } from 'crypto';
 import { type SessionUser, type RoleName, getPermissionsForRole } from '@aegisciso/shared';
 
-function hashPassword(password: string): string {
-  return createHash('sha256').update(password).digest('hex');
+// Secure password hashing with bcrypt
+async function verifyPassword(password: string, hash: string): Promise<boolean> {
+  // Support both bcrypt (new) and SHA256 (legacy) for migration
+  if (hash.startsWith('$2a$') || hash.startsWith('$2b$')) {
+    return bcrypt.compare(password, hash);
+  }
+  // Legacy SHA256 check - will be migrated on next login
+  const sha256Hash = createHash('sha256').update(password).digest('hex');
+  return sha256Hash === hash;
+}
+
+export async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, 12);
 }
 
 export const authOptions: NextAuthOptions = {
@@ -40,9 +52,18 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const passwordHash = hashPassword(credentials.password);
-        if (user.passwordHash !== passwordHash) {
+        const isValidPassword = await verifyPassword(credentials.password, user.passwordHash);
+        if (!isValidPassword) {
           return null;
+        }
+
+        // Migrate legacy SHA256 passwords to bcrypt on successful login
+        if (!user.passwordHash.startsWith('$2a$') && !user.passwordHash.startsWith('$2b$')) {
+          const newHash = await hashPassword(credentials.password);
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { passwordHash: newHash },
+          });
         }
 
         // Update last login

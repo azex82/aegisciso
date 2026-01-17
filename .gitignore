@@ -42,3 +42,17 @@ test-results
 
 # Misc
 *.tsbuildinfo
+
+# Python virtual environments
+venv/
+.venv/
+env/
+.env/
+sovereign-ai/venv/
+
+# Large binary files
+*.dylib
+*.so
+*.bin
+__pycache__/
+*.pyc

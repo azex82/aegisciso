@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { prisma } from '@aegisciso/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, Badge } from '@aegisciso/ui';
 import { FileCheck, Shield, CheckCircle, AlertCircle, Clock, TrendingUp } from 'lucide-react';

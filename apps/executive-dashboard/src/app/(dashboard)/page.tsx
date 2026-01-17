@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { prisma } from '@aegisciso/db';
 import { PostureCard } from '@/components/dashboard/posture-card';
 import { KPITiles } from '@/components/dashboard/kpi-tiles';

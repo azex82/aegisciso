@@ -111,11 +111,11 @@ export default async function PoliciesPage({ searchParams }: PageProps) {
     if (filter === 'published') matchesFilter = policy.status === 'PUBLISHED';
     else if (filter === 'draft') matchesFilter = policy.status === 'DRAFT';
     else if (filter === 'review') {
-      matchesFilter = policy.reviewDate && new Date(policy.reviewDate) <= thirtyDaysFromNow;
+      matchesFilter = !!(policy.reviewDate && new Date(policy.reviewDate) <= thirtyDaysFromNow);
     }
     else if (filter === 'expiring') {
       const expiryDate = policy.expiryDate ? new Date(policy.expiryDate) : null;
-      matchesFilter = expiryDate && expiryDate <= thirtyDaysFromNow && expiryDate > now;
+      matchesFilter = !!(expiryDate && expiryDate <= thirtyDaysFromNow && expiryDate > now);
     }
 
     // Apply search filter

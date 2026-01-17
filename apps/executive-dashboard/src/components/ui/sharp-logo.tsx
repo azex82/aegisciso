@@ -70,7 +70,7 @@ export function SharpLogoSVG({
   if (variant === 'icon') {
     const goldGradientId = `goldAccent-${Math.random().toString(36).substr(2, 9)}`;
     return (
-      <svg viewBox="0 0 80 80" className={className} aria-label="SHARP">
+      <svg viewBox="0 0 80 80" className={className} width="80" height="80" aria-label="SHARP" style={{ maxHeight: '100%', width: 'auto' }}>
         <defs>
           <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" style={{ stopColor: '#1e3a5f' }} />
@@ -114,7 +114,7 @@ export function SharpLogoSVG({
     const iconGradientId = `iconGradient-${Math.random().toString(36).substr(2, 9)}`;
     const goldGradientId = `goldAccent-${Math.random().toString(36).substr(2, 9)}`;
     return (
-      <svg viewBox="0 0 400 120" className={className} aria-label="SHARP - Enterprise Security Platform">
+      <svg viewBox="0 0 400 120" className={className} width="400" height="120" aria-label="SHARP - Enterprise Security Platform" style={{ maxHeight: '100%', width: 'auto' }}>
         <defs>
           <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" style={{ stopColor: color === 'white' ? '#ffffff' : '#1e3a5f' }} />
@@ -198,7 +198,7 @@ export function SharpLogoSVG({
 
   // Default variant
   return (
-    <svg viewBox="0 0 320 100" className={className} aria-label="SHARP">
+    <svg viewBox="0 0 320 100" className={className} width="320" height="100" aria-label="SHARP" style={{ maxHeight: '100%', width: 'auto' }}>
       {getGradient()}
       <text
         x="20"

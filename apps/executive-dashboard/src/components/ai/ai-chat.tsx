@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Button, Card, CardContent, CardHeader, CardTitle, Badge, Textarea } from '@aegisciso/ui';
-import { Send, Bot, User, Shield, Loader2, AlertTriangle, Lock } from 'lucide-react';
+import { Send, Bot, User, Shield, Loader2, AlertTriangle, Lock, Sparkles, Copy, Check, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { sovereignAI, type ChatMessage } from '@/lib/sovereign-ai-client';
 
 // Simple markdown renderer for chat messages
@@ -159,13 +159,22 @@ interface AIChatProps {
   className?: string;
 }
 
+const examplePrompts = [
+  { icon: '📊', text: 'Summarize our current risk landscape' },
+  { icon: '📋', text: 'Which policies need immediate review?' },
+  { icon: '🎯', text: 'What are our compliance gaps?' },
+  { icon: '💡', text: 'Recommend security improvements' },
+];
+
 export function AIChat({ contextType = 'general', initialSystemPrompt, className }: AIChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [aiStatus, setAiStatus] = useState<'checking' | 'online' | 'demo'>('checking');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // Check AI backend status on mount
   useEffect(() => {
@@ -234,197 +243,273 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
     }
   }
 
-  function getContextIcon() {
+  function handleExampleClick(prompt: string) {
+    setInput(prompt);
+    inputRef.current?.focus();
+  }
+
+  async function handleCopy(text: string, messageId: string) {
+    await navigator.clipboard.writeText(text);
+    setCopiedId(messageId);
+    setTimeout(() => setCopiedId(null), 2000);
+  }
+
+  function getContextBadge() {
     switch (contextType) {
       case 'policy':
-        return '📋';
+        return { label: 'Policy Context', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' };
       case 'risk':
-        return '⚠️';
+        return { label: 'Risk Context', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' };
       case 'compliance':
-        return '✅';
+        return { label: 'Compliance Context', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' };
       default:
-        return '🤖';
+        return { label: 'General', color: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400' };
     }
   }
 
+  const contextBadge = getContextBadge();
+
   return (
     <Card className={className}>
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-3 border-b">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-primary" />
-            <CardTitle className="text-lg">AI Cybersecurity Director</CardTitle>
-            <Badge variant="outline" className="ml-2">
-              <Lock className="h-3 w-3 mr-1" />
-              Sovereign
-            </Badge>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Shield className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">AI Security Advisor</CardTitle>
+              <p className="text-xs text-muted-foreground mt-0.5">Powered by sovereign, on-premise AI</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">{getContextIcon()} {contextType}</span>
-            <div className={`h-2 w-2 rounded-full ${
-              aiStatus === 'online' ? 'bg-green-500' :
-              aiStatus === 'demo' ? 'bg-blue-500' : 'bg-yellow-500'
-            }`} />
-            <span className="text-xs text-muted-foreground">
-              {aiStatus === 'online' ? 'Online' : aiStatus === 'demo' ? 'Demo Mode' : 'Connecting...'}
-            </span>
+            <Badge className={`text-xs ${contextBadge.color}`}>
+              {contextBadge.label}
+            </Badge>
+            <div className="flex items-center gap-1.5 text-xs bg-muted/50 rounded-full px-2.5 py-1">
+              <div className={`h-1.5 w-1.5 rounded-full ${
+                aiStatus === 'online' ? 'bg-green-500' :
+                aiStatus === 'demo' ? 'bg-blue-500 animate-pulse' : 'bg-yellow-500 animate-pulse'
+              }`} />
+              <span className="text-muted-foreground">
+                {aiStatus === 'online' ? 'Live' : aiStatus === 'demo' ? 'Demo' : '...'}
+              </span>
+            </div>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-col h-[500px]">
+      <CardContent className="flex flex-col h-[480px] p-0">
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2">
-          {messages.length === 0 && (
-            <div className="text-center text-muted-foreground py-8">
-              <Bot className="h-12 w-12 mx-auto mb-4 text-primary/50" />
-              <p className="font-medium">Sovereign AI Director</p>
-              <p className="text-sm mt-1">
-                Ask about policies, risks, compliance, or security strategy.
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {messages.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-center px-4">
+              <div className="relative mb-6">
+                <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl" />
+                <div className="relative p-4 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
+                  <Bot className="h-10 w-10 text-primary" />
+                </div>
+              </div>
+              <h3 className="font-semibold text-lg mb-2">How can I help you today?</h3>
+              <p className="text-sm text-muted-foreground mb-6 max-w-md">
+                Ask me about security policies, risk assessments, compliance status, or get recommendations to improve your security posture.
               </p>
-              <p className="text-xs mt-2 text-muted-foreground">
-                All processing is local. No data leaves your infrastructure.
-              </p>
+
+              {/* Example Prompts */}
+              <div className="grid grid-cols-2 gap-2 w-full max-w-lg">
+                {examplePrompts.map((prompt, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleExampleClick(prompt.text)}
+                    className="flex items-center gap-2 p-3 text-left text-sm bg-muted/50 hover:bg-muted border border-transparent hover:border-primary/20 rounded-lg transition-all group"
+                  >
+                    <span className="text-lg">{prompt.icon}</span>
+                    <span className="text-muted-foreground group-hover:text-foreground transition-colors line-clamp-1">
+                      {prompt.text}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-2 mt-6 text-xs text-muted-foreground">
+                <Lock className="h-3 w-3" />
+                <span>All processing is local. Your data never leaves the infrastructure.</span>
+              </div>
             </div>
-          )}
-
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              {message.role === 'assistant' && (
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Bot className="h-4 w-4 text-primary" />
-                </div>
-              )}
-
-              <div className={`max-w-[80%] ${message.role === 'user' ? 'order-1' : ''}`}>
+          ) : (
+            <>
+              {messages.map((message) => (
                 <div
-                  className={`rounded-lg px-4 py-3 ${
-                    message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
-                  }`}
+                  key={message.id}
+                  className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  {message.role === 'assistant' ? (
-                    <div className="prose prose-sm dark:prose-invert max-w-none">
-                      {renderMarkdown(message.content)}
+                  {message.role === 'assistant' && (
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center border border-primary/20">
+                      <Bot className="h-4 w-4 text-primary" />
                     </div>
-                  ) : (
-                    <p className="text-sm">{message.content}</p>
                   )}
-                </div>
 
-                {/* Metadata for assistant messages */}
-                {message.role === 'assistant' && (
-                  <div className="mt-2 space-y-2">
-                    {message.confidence !== undefined && (
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Badge variant="outline" className="text-xs">
-                          Confidence: {Math.round(message.confidence * 100)}%
-                        </Badge>
-                        {message.processing_time_ms && (
-                          <span>{Math.round(message.processing_time_ms)}ms</span>
+                  <div className={`max-w-[80%] ${message.role === 'user' ? 'order-1' : ''}`}>
+                    <div
+                      className={`rounded-2xl px-4 py-3 ${
+                        message.role === 'user'
+                          ? 'bg-primary text-primary-foreground rounded-br-md'
+                          : 'bg-muted/70 rounded-bl-md'
+                      }`}
+                    >
+                      {message.role === 'assistant' ? (
+                        <div className="prose prose-sm dark:prose-invert max-w-none">
+                          {renderMarkdown(message.content)}
+                        </div>
+                      ) : (
+                        <p className="text-sm">{message.content}</p>
+                      )}
+                    </div>
+
+                    {/* Actions and Metadata for assistant messages */}
+                    {message.role === 'assistant' && (
+                      <div className="mt-2 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleCopy(message.content, message.id)}
+                            className="p-1.5 hover:bg-muted rounded-md transition-colors"
+                            title="Copy response"
+                          >
+                            {copiedId === message.id ? (
+                              <Check className="h-3.5 w-3.5 text-green-600" />
+                            ) : (
+                              <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                            )}
+                          </button>
+                          <button
+                            className="p-1.5 hover:bg-muted rounded-md transition-colors"
+                            title="Helpful"
+                          >
+                            <ThumbsUp className="h-3.5 w-3.5 text-muted-foreground hover:text-green-600" />
+                          </button>
+                          <button
+                            className="p-1.5 hover:bg-muted rounded-md transition-colors"
+                            title="Not helpful"
+                          >
+                            <ThumbsDown className="h-3.5 w-3.5 text-muted-foreground hover:text-red-600" />
+                          </button>
+
+                          {message.confidence !== undefined && (
+                            <Badge variant="outline" className="text-[10px] ml-2">
+                              {Math.round(message.confidence * 100)}% confident
+                            </Badge>
+                          )}
+                          {message.processing_time_ms && (
+                            <span className="text-[10px] text-muted-foreground">
+                              {Math.round(message.processing_time_ms)}ms
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Sources */}
+                        {message.sources && message.sources.length > 0 && (
+                          <div className="space-y-1.5">
+                            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Sources</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {message.sources.map((source, idx) => (
+                                <div
+                                  key={idx}
+                                  className="text-[10px] bg-background border rounded-md px-2 py-1 flex items-center gap-1.5"
+                                  title={source.excerpt}
+                                >
+                                  <Badge variant="secondary" className="text-[9px] px-1 py-0">
+                                    {source.type}
+                                  </Badge>
+                                  <span className="text-muted-foreground">
+                                    {Math.round(source.relevance * 100)}%
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         )}
                       </div>
                     )}
 
-                    {/* Sources */}
-                    {message.sources && message.sources.length > 0 && (
-                      <div className="space-y-1">
-                        <p className="text-xs font-medium text-muted-foreground">Sources:</p>
-                        {message.sources.map((source, idx) => (
-                          <div
-                            key={idx}
-                            className="text-xs bg-background border rounded p-2"
-                          >
-                            <div className="flex items-center gap-2 mb-1">
-                              <Badge variant="secondary" className="text-xs">
-                                {source.type}
-                              </Badge>
-                              <span className="text-muted-foreground">
-                                Relevance: {Math.round(source.relevance * 100)}%
-                              </span>
-                            </div>
-                            <p className="text-muted-foreground line-clamp-2">
-                              {source.excerpt}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    <p className="text-[10px] text-muted-foreground mt-1.5 px-1">
+                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
                   </div>
-                )}
 
-                <p className="text-xs text-muted-foreground mt-1">
-                  {message.timestamp.toLocaleTimeString()}
-                </p>
-              </div>
+                  {message.role === 'user' && (
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center order-2">
+                      <User className="h-4 w-4 text-primary-foreground" />
+                    </div>
+                  )}
+                </div>
+              ))}
 
-              {message.role === 'user' && (
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center order-2">
-                  <User className="h-4 w-4 text-primary-foreground" />
+              {isLoading && (
+                <div className="flex gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center border border-primary/20">
+                    <Bot className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="bg-muted/70 rounded-2xl rounded-bl-md px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <div className="flex gap-1">
+                        <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      </div>
+                      <span className="text-xs text-muted-foreground">Analyzing...</span>
+                    </div>
+                  </div>
                 </div>
               )}
-            </div>
-          ))}
 
-          {isLoading && (
-            <div className="flex gap-3">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <Bot className="h-4 w-4 text-primary" />
-              </div>
-              <div className="bg-muted rounded-lg px-4 py-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-              </div>
-            </div>
-          )}
-
-          {error && (
-            <div className="flex items-center gap-2 p-3 bg-destructive/10 text-destructive rounded-lg">
-              <AlertTriangle className="h-4 w-4" />
-              <span className="text-sm">{error}</span>
-            </div>
+              {error && (
+                <div className="flex items-center gap-2 p-3 bg-destructive/10 text-destructive rounded-lg mx-4">
+                  <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+                  <span className="text-sm">{error}</span>
+                </div>
+              )}
+            </>
           )}
 
           <div ref={messagesEndRef} />
         </div>
 
         {/* Input Area */}
-        <form onSubmit={handleSubmit} className="flex gap-2">
-          <Textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about security policies, risks, compliance..."
-            className="min-h-[60px] max-h-[120px] resize-none"
-            disabled={isLoading}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit(e);
-              }
-            }}
-          />
-          <Button
-            type="submit"
-            size="icon"
-            disabled={isLoading || !input.trim()}
-            className="h-[60px] w-[60px]"
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
-          </Button>
-        </form>
-
-        {/* Sovereignty Notice */}
-        <p className="text-xs text-center text-muted-foreground mt-2">
-          <Lock className="h-3 w-3 inline mr-1" />
-          Fully sovereign - All AI processing runs locally on private infrastructure
-        </p>
+        <div className="p-4 border-t bg-muted/30">
+          <form onSubmit={handleSubmit} className="flex gap-2">
+            <div className="flex-1 relative">
+              <Textarea
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask about security policies, risks, compliance..."
+                className="min-h-[52px] max-h-[120px] resize-none pr-4 bg-background"
+                disabled={isLoading}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }
+                }}
+              />
+            </div>
+            <Button
+              type="submit"
+              size="icon"
+              disabled={isLoading || !input.trim()}
+              className="h-[52px] w-[52px] rounded-xl"
+            >
+              {isLoading ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <Send className="h-5 w-5" />
+              )}
+            </Button>
+          </form>
+          <p className="text-[10px] text-center text-muted-foreground mt-2">
+            Press Enter to send, Shift+Enter for new line
+          </p>
+        </div>
       </CardContent>
     </Card>
   );

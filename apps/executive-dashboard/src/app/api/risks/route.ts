@@ -47,7 +47,7 @@ export async function POST(request: Request) {
         inherentRiskScore: inherentLikelihood * inherentImpact,
         status: 'IDENTIFIED',
         treatmentPlan,
-        treatmentStatus: treatmentPlan ? 'PLANNED' : 'NOT_STARTED',
+        treatmentStatus: treatmentPlan ? 'IN_PROGRESS' : 'NOT_STARTED',
         priority: inherentLikelihood * inherentImpact >= 20 ? 1 : inherentLikelihood * inherentImpact >= 12 ? 2 : 3,
         ownerId: user?.id,
       },

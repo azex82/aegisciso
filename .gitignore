@@ -43,6 +43,10 @@ test-results
 # Misc
 *.tsbuildinfo
 
+# Local credentials (NEVER COMMIT)
+*CREDENTIALS*
+*_LOCAL_ONLY*
+
 # Python virtual environments
 venv/
 .venv/

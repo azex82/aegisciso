@@ -156,6 +156,7 @@ class SovereignAIClient {
     const response = await fetch(url, {
       ...options,
       headers,
+      credentials: 'include', // Ensure cookies are sent for session auth
     });
 
     if (!response.ok) {

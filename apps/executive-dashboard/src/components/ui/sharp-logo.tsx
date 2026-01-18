@@ -198,10 +198,10 @@ export function SharpLogoSVG({
 
   // Default variant
   return (
-    <svg viewBox="0 0 320 100" className={className} width="320" height="100" aria-label="SHARP" style={{ maxHeight: '100%', width: 'auto' }}>
+    <svg viewBox="0 0 300 100" className={className} width="300" height="100" aria-label="SHARP" style={{ maxHeight: '100%', width: 'auto' }}>
       {getGradient()}
       <text
-        x="20"
+        x="0"
         y="55"
         fontFamily="Arial, Helvetica, sans-serif"
         fontSize="48"
@@ -212,7 +212,7 @@ export function SharpLogoSVG({
         SHARP
       </text>
       <text
-        x="262"
+        x="242"
         y="28"
         fontFamily="Arial, Helvetica, sans-serif"
         fontSize="12"
@@ -221,7 +221,7 @@ export function SharpLogoSVG({
         ™
       </text>
       <text
-        x="20"
+        x="0"
         y="78"
         fontFamily="Arial, Helvetica, sans-serif"
         fontSize="14"

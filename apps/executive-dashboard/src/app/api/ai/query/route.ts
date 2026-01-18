@@ -14,7 +14,7 @@ const DEMO_MODE = process.env.AI_DEMO_MODE !== 'false';
 // Production settings
 const REQUEST_TIMEOUT_MS = 60000; // 60 second timeout
 const MAX_QUERY_LENGTH = 4000;
-const MAX_REQUESTS_PER_MINUTE = 20;
+const MAX_REQUESTS_PER_MINUTE = 1000; // Essentially unlimited
 
 // Groq API endpoint
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';

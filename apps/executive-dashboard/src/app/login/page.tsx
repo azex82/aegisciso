@@ -47,7 +47,7 @@ function LoginForm() {
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#1a237e] via-[#1565c0] to-[#42a5f5] items-center justify-center p-12">
         <div className="text-white max-w-md">
           {/* SHARP Logo */}
-          <SharpLogoSVG className="h-20 w-auto mb-8" variant="default" color="white" />
+          <SharpLogoSVG className="h-20 w-auto mb-8 block -ml-1" variant="default" color="white" />
           <h1 className="text-3xl font-bold mb-4 mt-4">AI Cybersecurity Director</h1>
           <p className="text-lg text-white/80 mb-6">
             Enterprise-grade security governance, risk management, and compliance platform powered by sovereign AI.

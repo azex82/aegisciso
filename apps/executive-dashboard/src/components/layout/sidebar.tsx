@@ -21,7 +21,7 @@ const navigation = [
   { name: 'AI Director', href: '/ai-director', icon: Brain },
   { name: 'Policies', href: '/policies', icon: FileText },
   { name: 'Risks', href: '/risks', icon: AlertTriangle },
-  { name: 'Objectives', href: '/objectives', icon: Target },
+  { name: 'Strategy', href: '/objectives', icon: Target },
   { name: 'Posture', href: '/posture', icon: Shield },
   { name: 'Compliance', href: '/compliance', icon: FileCheck },
 ];

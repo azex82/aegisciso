@@ -37,10 +37,10 @@ const tabs = [
     description: 'Risk monitoring & remediation',
   },
   {
-    name: 'Objectives',
+    name: 'Strategy',
     href: '/objectives',
     icon: Target,
-    description: 'Strategy objectives & KPIs',
+    description: 'Strategic objectives & KPIs',
   },
 ];
 

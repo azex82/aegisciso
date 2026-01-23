@@ -1,7 +1,7 @@
 """
 Sovereign AI - Policy Mapping Module
 AI-powered mapping of policies to compliance framework controls
-Supports NCA ECC, SAMA CSF, NIST CSF, ISO 27001, SOC 2
+Supports NCA ECC, NIST CSF, ISO 27001, SOC 2, CIS Controls
 """
 
 import asyncio
@@ -24,8 +24,7 @@ settings = get_settings()
 
 class ComplianceFramework(str, Enum):
     """Supported compliance frameworks"""
-    NCA_ECC = "NCA_ECC"           # Saudi NCA Essential Cybersecurity Controls
-    SAMA_CSF = "SAMA_CSF"         # Saudi SAMA Cyber Security Framework
+    NCA_ECC = "NCA_ECC"           # NCA Essential Cybersecurity Controls
     NIST_CSF = "NIST_CSF"         # NIST Cybersecurity Framework
     ISO_27001 = "ISO_27001"       # ISO 27001:2022
     SOC2 = "SOC2"                 # SOC 2 Trust Services Criteria

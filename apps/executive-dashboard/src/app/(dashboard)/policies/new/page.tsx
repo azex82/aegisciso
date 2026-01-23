@@ -135,7 +135,7 @@ export default function NewPolicyPage() {
                   <option value="NCA_ECC">NCA ECC</option>
                   <option value="NIST_CSF">NIST CSF</option>
                   <option value="ISO_27001">ISO 27001</option>
-                  <option value="SAMA_CSF">SAMA CSF</option>
+                  <option value="SOC2">SOC 2</option>
                   <option value="Internal">Internal</option>
                 </select>
               </div>

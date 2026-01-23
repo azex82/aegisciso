@@ -468,14 +468,14 @@ async function main() {
       },
     }),
     prisma.framework.upsert({
-      where: { code: 'SAMA_CSF' },
+      where: { code: 'SOC2' },
       update: {},
       create: {
-        code: 'SAMA_CSF',
-        name: 'SAMA Cyber Security Framework',
-        version: '1.0',
-        description: 'Saudi Central Bank Cyber Security Framework',
-        category: 'Regulatory',
+        code: 'SOC2',
+        name: 'SOC 2 Type II',
+        version: '2017',
+        description: 'Service Organization Control 2 Trust Services Criteria',
+        category: 'Industry Standard',
       },
     }),
   ]);

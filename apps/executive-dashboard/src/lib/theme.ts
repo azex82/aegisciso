@@ -212,8 +212,8 @@ export const frameworkColors: Record<string, string> = {
   'NCA_ECC': '#003366',
   'NIST_CSF': '#0284c7',
   'ISO_27001': '#0ea5e9',
-  'SAMA_CSF': '#6366f1',
-  'SOC2': '#8b5cf6',
+  'SOC2': '#6366f1',
+  'CIS_CSC': '#8b5cf6',
   'PDPL': '#a855f7',
 };
 

@@ -11,7 +11,7 @@ This guide covers deploying the AegisCISO Sovereign AI Cybersecurity Director pl
 - Private LLM (LLaMA 3 / Mistral via Ollama)
 - Local vector database (ChromaDB)
 - Zero-trust security architecture
-- NCA/SAMA/NIST/ISO compliance support
+- NCA ECC/NIST CSF/ISO 27001/SOC 2 compliance support
 
 ---
 
@@ -468,13 +468,13 @@ docker exec aegisciso-sovereign-ai env | grep EXTERNAL
 - [x] Encryption in transit (TLS 1.3)
 - [x] Incident response support (ECC 3-1)
 
-### SAMA CSF Compliance
+### SOC 2 Type II Compliance
 
-- [x] Information security governance
-- [x] Asset management
-- [x] Access control
-- [x] Operations security
-- [x] Supplier security (N/A - no suppliers)
+- [x] Security (CC6) - Access controls
+- [x] Availability (A1) - System uptime
+- [x] Confidentiality (C1) - Data protection
+- [x] Processing Integrity (PI1) - Accurate processing
+- [x] Privacy - Data handling controls
 
 ### Data Sovereignty
 

@@ -192,7 +192,7 @@ interface AIResponse {
 const SYSTEM_PROMPT = `You are a highly intelligent AI Cybersecurity Director and Chief Information Security Officer (CISO) advisor for SHARP, an enterprise cybersecurity governance platform. You have deep expertise and analytical capabilities across all domains of cybersecurity.
 
 ## Your Expertise Areas:
-1. **Compliance & Regulatory Frameworks**: NCA ECC (Saudi Arabia), SAMA CSF, NIST CSF 2.0, ISO 27001/27002:2022, SOC 2 Type II, CIS Controls v8, PCI DSS 4.0, PDPL (Saudi Data Protection Law), GDPR principles
+1. **Compliance & Regulatory Frameworks**: NCA ECC, NIST CSF 2.0, ISO 27001/27002:2022, SOC 2 Type II, CIS Controls v8, PCI DSS 4.0, GDPR principles
 2. **Risk Management**: Enterprise risk management (ERM), quantitative risk analysis (FAIR), risk appetite frameworks, threat modeling (STRIDE, PASTA), risk treatment strategies, business impact analysis
 3. **Security Architecture**: Zero Trust Architecture, defense-in-depth, cloud security (CSA CCM), identity and access management, network segmentation, data protection strategies
 4. **Security Operations**: SOC operations, SOC-CMM maturity model, MITRE ATT&CK framework, incident response (NIST SP 800-61), threat intelligence, SIEM/SOAR optimization, detection engineering
@@ -215,11 +215,11 @@ When answering questions, use deep analytical reasoning:
 - Anticipate follow-up questions and address them proactively
 - When appropriate, provide executive summaries followed by detailed analysis
 - Reference industry best practices and standards to support recommendations
-- Consider Saudi Arabia regulatory context (NCA, SAMA, PDPL) as primary
+- Consider applicable regulatory context based on the organization's jurisdiction
 
 ## Organization Context:
-- Industry: Enterprise/Government sector in Saudi Arabia
-- Primary frameworks: NCA ECC, SAMA CSF, ISO 27001
+- Industry: Enterprise/Government sector
+- Primary frameworks: NCA ECC, NIST CSF, ISO 27001
 - Security maturity: Developing toward Level 3-4
 - Focus areas: Compliance, risk reduction, SOC enhancement
 
@@ -495,13 +495,13 @@ The NCA ECC framework consists of 5 main domains with 29 subdomains and 114 cont
 |-----------|----------|--------|
 | NCA ECC | 78% | In Progress |
 | ISO 27001 | 85% | Certified |
-| SAMA CSF | 80% | Compliant |
 | NIST CSF | 72% | Developing |
+| SOC 2 | 75% | In Progress |
 
 **Priority Actions:**
 1. Close NCA ECC gaps (22 controls pending)
 2. Prepare for ISO surveillance audit
-3. Update SAMA CSF documentation
+3. Complete SOC 2 Type II readiness
 
 **Next Audit:** Q2 2025 - NCA ECC Assessment`;
     sources = [
@@ -515,7 +515,7 @@ The NCA ECC framework consists of 5 main domains with 29 subdomains and 114 cont
 As your AI Cybersecurity Director, I can help you with:
 
 **Compliance & Frameworks**
-- NCA ECC, SAMA CSF, NIST CSF, ISO 27001 guidance
+- NCA ECC, NIST CSF, ISO 27001, SOC 2 guidance
 - Gap analysis and remediation planning
 
 **Risk Management**

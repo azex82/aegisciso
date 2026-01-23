@@ -95,7 +95,12 @@ class RAGSettings(BaseSettings):
 
     # Retrieval Settings
     top_k_results: int = 5
-    similarity_threshold: float = 0.7
+    similarity_threshold: float = 0.5  # Minimum threshold (captures Weak matches)
+
+    # Tiered Similarity Thresholds (ISO 27001 & ECC-2:2024 ML Pipeline)
+    strong_match_threshold: float = 0.85   # Controls are likely equivalent
+    moderate_match_threshold: float = 0.70  # Related, address similar concepts
+    weak_match_threshold: float = 0.50      # Conceptually related, different aspects
 
     # Chunking Strategy
     chunk_size: int = 1000
@@ -146,7 +151,6 @@ class AuditSettings(BaseSettings):
     # Compliance Frameworks
     enabled_frameworks: List[str] = [
         "NCA_ECC",
-        "SAMA_CSF",
         "NIST_CSF",
         "ISO_27001",
         "SOC2",

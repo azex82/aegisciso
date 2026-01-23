@@ -129,19 +129,9 @@ class DLPEngine:
             ]
         )
 
-        # Saudi-specific recognizers
-        saudi_id_recognizer = PatternRecognizer(
-            supported_entity="SAUDI_NATIONAL_ID",
-            patterns=[
-                Pattern("Saudi ID", r"\b[12]\d{9}\b", 0.8),
-                Pattern("Iqama", r"\b2\d{9}\b", 0.7),
-            ]
-        )
-
         analyzer.registry.add_recognizer(api_key_recognizer)
         analyzer.registry.add_recognizer(password_recognizer)
         analyzer.registry.add_recognizer(ip_recognizer)
-        analyzer.registry.add_recognizer(saudi_id_recognizer)
 
         return analyzer
 
@@ -191,7 +181,7 @@ class DLPEngine:
                 entities=[
                     "PERSON", "EMAIL_ADDRESS", "PHONE_NUMBER",
                     "CREDIT_CARD", "IBAN_CODE", "IP_ADDRESS",
-                    "API_KEY", "PASSWORD", "SAUDI_NATIONAL_ID"
+                    "API_KEY", "PASSWORD"
                 ]
             )
 
@@ -273,7 +263,6 @@ class DLPEngine:
             "IP_ADDRESS": SensitiveDataType.NETWORK_IP_ADDRESS,
             "API_KEY": SensitiveDataType.CREDENTIAL_API_KEY,
             "PASSWORD": SensitiveDataType.CREDENTIAL_PASSWORD,
-            "SAUDI_NATIONAL_ID": SensitiveDataType.PII_NATIONAL_ID,
         }
         return mapping.get(entity_type, SensitiveDataType.CLASSIFIED_CONFIDENTIAL)
 

@@ -83,7 +83,10 @@ export async function GET() {
         take: 20,
       }),
       prisma.framework.findMany({
-        where: { isActive: true },
+        where: {
+          isActive: true,
+          code: { notIn: ['SAMA_CSF'] }
+        },
         include: {
           controls: {
             include: {

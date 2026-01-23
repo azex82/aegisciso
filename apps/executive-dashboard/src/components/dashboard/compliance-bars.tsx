@@ -53,10 +53,12 @@ export function ComplianceBars({ frameworks }: ComplianceBarsProps) {
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {frameworks.map((framework) => {
-          const totalCoverage = Math.round(
-            ((framework.fullCoverage + framework.partialCoverage * 0.5) / framework.totalControls) * 100
-          );
+        {frameworks.filter(f => f.totalControls > 0).map((framework) => {
+          const totalCoverage = framework.totalControls > 0
+            ? Math.round(
+                ((framework.fullCoverage + framework.partialCoverage * 0.5) / framework.totalControls) * 100
+              )
+            : 0;
           const color = frameworkColors[framework.code] || '#003366';
 
           return (
@@ -215,8 +217,8 @@ export function getSampleFrameworkCoverage(): FrameworkCoverage[] {
       noCoverage: 22,
     },
     {
-      code: 'SAMA_CSF',
-      name: 'SAMA Cyber Security Framework',
+      code: 'SOC2',
+      name: 'SOC 2 Type II',
       totalControls: 89,
       mappedControls: 62,
       fullCoverage: 41,

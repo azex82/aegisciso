@@ -1,22 +1,32 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useTheme } from 'next-themes';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button, Switch, Label } from '@aegisciso/ui';
-import { Bell, Moon, Globe, Shield, Save } from 'lucide-react';
+import { Bell, Moon, Shield, Save } from 'lucide-react';
 
 export default function SettingsPage() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [settings, setSettings] = useState({
     emailNotifications: true,
     riskAlerts: true,
     policyReminders: true,
     weeklyReports: false,
-    darkMode: false,
-    language: 'en',
   });
 
   const handleToggle = (key: keyof typeof settings) => {
     setSettings(prev => ({ ...prev, [key]: !prev[key] }));
   };
+
+  const handleDarkModeToggle = (checked: boolean) => {
+    setTheme(checked ? 'dark' : 'light');
+  };
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSave = () => {
     // Show a simple alert for now
@@ -96,7 +106,7 @@ export default function SettingsPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Globe className="h-5 w-5 text-primary" />
+              <Moon className="h-5 w-5 text-primary" />
               <CardTitle>Preferences</CardTitle>
             </div>
             <CardDescription>Customize your experience</CardDescription>
@@ -109,23 +119,10 @@ export default function SettingsPage() {
               </div>
               <Switch
                 id="dark-mode"
-                checked={settings.darkMode}
-                onCheckedChange={() => handleToggle('darkMode')}
+                checked={mounted && theme === 'dark'}
+                onCheckedChange={handleDarkModeToggle}
+                disabled={!mounted}
               />
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <Label className="font-medium">Language</Label>
-                <p className="text-sm text-muted-foreground">Select your preferred language</p>
-              </div>
-              <select
-                className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
-                value={settings.language}
-                onChange={(e) => setSettings(prev => ({ ...prev, language: e.target.value }))}
-              >
-                <option value="en">English</option>
-                <option value="ar">العربية</option>
-              </select>
             </div>
           </CardContent>
         </Card>

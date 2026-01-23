@@ -6,7 +6,10 @@ import { FileCheck, Shield, CheckCircle, AlertCircle, Clock, TrendingUp } from '
 
 async function getComplianceData() {
   const frameworks = await prisma.framework.findMany({
-    where: { isActive: true },
+    where: {
+      isActive: true,
+      code: { notIn: ['SAMA_CSF'] }
+    },
     include: {
       controls: {
         include: {

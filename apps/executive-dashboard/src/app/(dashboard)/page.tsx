@@ -7,7 +7,28 @@ import { PostureChart } from '@/components/dashboard/posture-chart';
 import { ComplianceBars } from '@/components/dashboard/compliance-bars';
 import { StrategyImpact } from '@/components/dashboard/strategy-impact';
 import { TopRisksTable } from '@/components/dashboard/top-risks-table';
-import { getSampleFrameworkCoverage, getSampleStrategyImpact, getSampleTopRisks } from '@/lib/sample-data';
+import { getSampleStrategyImpact, getSampleTopRisks, type FrameworkCoverage } from '@/lib/sample-data';
+
+// Calculate framework coverage stats from database data
+function getFrameworkStats(controls: Array<{ mappings: Array<{ coverageLevel: string }> }>) {
+  const totalControls = controls.length;
+  const mappedControls = controls.filter(c => c.mappings.length > 0).length;
+  const fullCoverage = controls.filter(c =>
+    c.mappings.some(m => m.coverageLevel === 'FULL')
+  ).length;
+  const partialCoverage = controls.filter(c =>
+    c.mappings.length > 0 && !c.mappings.some(m => m.coverageLevel === 'FULL')
+  ).length;
+  const noCoverage = totalControls - mappedControls;
+
+  return {
+    totalControls,
+    mappedControls,
+    fullCoverage,
+    partialCoverage,
+    noCoverage,
+  };
+}
 
 async function getDashboardData() {
   const [
@@ -15,6 +36,7 @@ async function getDashboardData() {
     snapshotHistory,
     risks,
     objectives,
+    frameworks,
   ] = await Promise.all([
     prisma.postureSnapshot.findFirst({
       orderBy: { snapshotDate: 'desc' },
@@ -37,6 +59,23 @@ async function getDashboardData() {
         owner: { select: { name: true } },
         riskLinks: { include: { risk: true } },
       },
+    }),
+    // Fetch real framework coverage data
+    prisma.framework.findMany({
+      where: {
+        isActive: true,
+        code: { notIn: ['SAMA_CSF'] }, // Exclude inactive frameworks
+      },
+      include: {
+        controls: {
+          include: {
+            mappings: {
+              select: { coverageLevel: true },
+            },
+          },
+        },
+      },
+      orderBy: { name: 'asc' },
     }),
   ]);
 
@@ -72,6 +111,20 @@ async function getDashboardData() {
 
   const impactedObjectives = transformedObjectives.filter((obj) => obj.impactingRisks > 0);
 
+  // Transform frameworks into FrameworkCoverage format
+  const frameworkCoverage: FrameworkCoverage[] = frameworks.map((framework) => {
+    const stats = getFrameworkStats(framework.controls);
+    return {
+      code: framework.code,
+      name: framework.name,
+      totalControls: stats.totalControls,
+      mappedControls: stats.mappedControls,
+      fullCoverage: stats.fullCoverage,
+      partialCoverage: stats.partialCoverage,
+      noCoverage: stats.noCoverage,
+    };
+  });
+
   return {
     snapshot: latestSnapshot,
     history: snapshotHistory,
@@ -79,6 +132,7 @@ async function getDashboardData() {
     objectives: transformedObjectives,
     totalImpactedObjectives: impactedObjectives.length,
     strategyImpactScore: Math.round((impactedObjectives.length / Math.max(objectives.length, 1)) * 100),
+    frameworkCoverage,
   };
 }
 
@@ -100,8 +154,8 @@ export default async function DashboardPage() {
     riskTrend: -1,
   } : null;
 
-  // Get sample data for demo (fallback)
-  const frameworkCoverage = getSampleFrameworkCoverage();
+  // Use real framework coverage data from database (no more sample data for compliance)
+  const frameworkCoverage = data.frameworkCoverage;
   const strategyData = data.objectives.length > 0
     ? {
         objectives: data.objectives as any[],

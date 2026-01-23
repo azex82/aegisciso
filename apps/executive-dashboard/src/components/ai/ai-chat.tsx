@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Button, Card, CardContent, CardHeader, CardTitle, Badge, Textarea } from '@aegisciso/ui';
-import { Send, Bot, User, Shield, Loader2, AlertTriangle, Lock, Sparkles, Copy, Check, ThumbsUp, ThumbsDown } from 'lucide-react';
-import { sovereignAI, type ChatMessage } from '@/lib/sovereign-ai-client';
+import { Send, Bot, User, Shield, Loader2, AlertTriangle, Lock, Copy, Check, ThumbsUp, ThumbsDown, Settings2, Cloud, Home } from 'lucide-react';
+import { ModelSelector } from './model-selector';
+import { AIProvider, PROVIDER_ICONS, PROVIDER_CONFIGS, getStoredSelection } from '@/lib/ai-models';
 
 // Simple markdown renderer for chat messages
 function renderMarkdown(text: string): React.ReactNode {
@@ -37,8 +38,8 @@ function renderMarkdown(text: string): React.ReactNode {
       return;
     }
 
-    // Bullet list (- item or * item)
-    const ulMatch = line.match(/^[-*]\s+(.+)$/);
+    // Bullet list (- item or * item or + item)
+    const ulMatch = line.match(/^[-*+]\s+(.+)$/);
     if (ulMatch) {
       if (listType !== 'ul') flushList();
       listType = 'ul';
@@ -56,6 +57,14 @@ function renderMarkdown(text: string): React.ReactNode {
     }
 
     // Headers
+    if (line.startsWith('#### ')) {
+      elements.push(
+        <h5 key={index} className="font-semibold text-sm mt-2 mb-1">
+          {renderInlineMarkdown(line.slice(5))}
+        </h5>
+      );
+      return;
+    }
     if (line.startsWith('### ')) {
       elements.push(
         <h4 key={index} className="font-semibold text-sm mt-3 mb-1">
@@ -145,12 +154,19 @@ function renderInlineMarkdown(text: string): React.ReactNode {
   return <>{parts}</>;
 }
 
+interface ChatMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+}
+
 interface Message extends ChatMessage {
   id: string;
   timestamp: Date;
   sources?: Array<{ id: string; type: string; relevance: number; excerpt: string }>;
   confidence?: number;
   processing_time_ms?: number;
+  model?: string;
+  provider?: string;
 }
 
 interface AIChatProps {
@@ -171,14 +187,18 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [aiStatus, setAiStatus] = useState<'checking' | 'online' | 'demo'>('checking');
+  const [selectedProvider, setSelectedProvider] = useState<AIProvider>(AIProvider.OPENAI);
+  const [selectedModelId, setSelectedModelId] = useState<string>('gpt-4o');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Check AI backend status on mount
+  // Load stored selection on mount
   useEffect(() => {
-    checkAIStatus();
+    const stored = getStoredSelection();
+    setSelectedProvider(stored.provider);
+    setSelectedModelId(stored.modelId);
   }, []);
 
   // Auto-scroll to bottom
@@ -186,24 +206,15 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  async function checkAIStatus() {
-    try {
-      const health = await sovereignAI.healthCheck();
-      // Check if it's demo mode or real AI
-      if ((health as any).mode === 'demo') {
-        setAiStatus('demo');
-      } else {
-        setAiStatus(health.llm_available ? 'online' : 'demo');
-      }
-    } catch {
-      // Demo mode is always available via the API fallback
-      setAiStatus('demo');
-    }
-  }
+  const handleModelChange = (provider: AIProvider, modelId: string) => {
+    setSelectedProvider(provider);
+    setSelectedModelId(modelId);
+    setError(null); // Clear any previous errors when model changes
+  };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || !selectedModelId) return;
 
     const userMessage: Message = {
       id: crypto.randomUUID(),
@@ -218,26 +229,42 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
     setError(null);
 
     try {
-      // Use RAG-enhanced query for better context
-      const response = await sovereignAI.query({
-        query: userMessage.content,
-        context_type: contextType,
-        include_sources: true,
+      // Send request to the multi-provider AI endpoint
+      const response = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: selectedProvider,
+          model: selectedModelId,
+          message: userMessage.content,
+          context_type: contextType,
+          conversation_id: messages.length > 0 ? messages[0].id : undefined,
+          history: messages.slice(-10).map(m => ({ role: m.role, content: m.content })),
+        }),
       });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to get response');
+      }
 
       const assistantMessage: Message = {
         id: crypto.randomUUID(),
         role: 'assistant',
-        content: response.answer,
+        content: data.content,
         timestamp: new Date(),
-        sources: response.sources,
-        confidence: response.confidence,
-        processing_time_ms: response.processing_time_ms,
+        sources: data.sources,
+        confidence: data.confidence,
+        processing_time_ms: data.processing_time_ms,
+        model: data.model,
+        provider: data.provider,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to get response');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to get response';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -279,24 +306,59 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
             </div>
             <div>
               <CardTitle className="text-lg">AI Security Advisor</CardTitle>
-              <p className="text-xs text-muted-foreground mt-0.5">Powered by sovereign, on-premise AI</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Multi-model AI assistant for cybersecurity</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Badge className={`text-xs ${contextBadge.color}`}>
               {contextBadge.label}
             </Badge>
-            <div className="flex items-center gap-1.5 text-xs bg-muted/50 rounded-full px-2.5 py-1">
-              <div className={`h-1.5 w-1.5 rounded-full ${
-                aiStatus === 'online' ? 'bg-green-500' :
-                aiStatus === 'demo' ? 'bg-blue-500 animate-pulse' : 'bg-yellow-500 animate-pulse'
-              }`} />
-              <span className="text-muted-foreground">
-                {aiStatus === 'online' ? 'Live' : aiStatus === 'demo' ? 'Demo' : '...'}
-              </span>
-            </div>
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              className={`p-1.5 rounded-md transition-colors ${showSettings ? 'bg-primary/10 text-primary' : 'hover:bg-muted text-muted-foreground'}`}
+              title="Model settings"
+            >
+              <Settings2 className="h-4 w-4" />
+            </button>
           </div>
         </div>
+
+        {/* Model Selector Panel */}
+        {showSettings && (
+          <div className="mt-4 pt-4 border-t">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium">AI Model</p>
+                <p className="text-xs text-muted-foreground">Select the model for your conversation</p>
+              </div>
+              <ModelSelector onModelChange={handleModelChange} disabled={isLoading} />
+            </div>
+          </div>
+        )}
+
+        {/* Compact Model Display (when settings closed) */}
+        {!showSettings && selectedModelId && (
+          <div className="mt-3 flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Model:</span>
+            <div className="flex items-center gap-1.5 text-xs bg-muted/50 rounded-full px-2.5 py-1">
+              <span>{PROVIDER_ICONS[selectedProvider]}</span>
+              <span className="font-medium">{selectedModelId}</span>
+              <span className="text-muted-foreground">({PROVIDER_CONFIGS[selectedProvider]?.name || selectedProvider})</span>
+            </div>
+            {/* Data processing indicator */}
+            {selectedProvider === AIProvider.OLLAMA ? (
+              <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                <Home className="h-3 w-3" />
+                <span>Local</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
+                <Cloud className="h-3 w-3" />
+                <span>Cloud</span>
+              </div>
+            )}
+          </div>
+        )}
       </CardHeader>
 
       <CardContent className="flex flex-col h-[480px] p-0">
@@ -333,7 +395,7 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
 
               <div className="flex items-center gap-2 mt-6 text-xs text-muted-foreground">
                 <Lock className="h-3 w-3" />
-                <span>All processing is local. Your data never leaves the infrastructure.</span>
+                <span>Select Ollama for local processing, or OpenAI/DeepSeek for cloud</span>
               </div>
             </div>
           ) : (
@@ -394,9 +456,9 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
                             <ThumbsDown className="h-3.5 w-3.5 text-muted-foreground hover:text-red-600" />
                           </button>
 
-                          {message.confidence !== undefined && (
+                          {message.model && (
                             <Badge variant="outline" className="text-[10px] ml-2">
-                              {Math.round(message.confidence * 100)}% confident
+                              {message.model}
                             </Badge>
                           )}
                           {message.processing_time_ms && (
@@ -456,7 +518,9 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
                         <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                         <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                       </div>
-                      <span className="text-xs text-muted-foreground">Analyzing...</span>
+                      <span className="text-xs text-muted-foreground">
+                        {selectedModelId ? `Thinking with ${selectedModelId}...` : 'Analyzing...'}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -482,9 +546,9 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about security policies, risks, compliance..."
+                placeholder={selectedModelId ? `Ask ${selectedModelId} about security policies, risks, compliance...` : 'Select a model to start...'}
                 className="min-h-[52px] max-h-[120px] resize-none pr-4 bg-background"
-                disabled={isLoading}
+                disabled={isLoading || !selectedModelId}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -496,7 +560,7 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
             <Button
               type="submit"
               size="icon"
-              disabled={isLoading || !input.trim()}
+              disabled={isLoading || !input.trim() || !selectedModelId}
               className="h-[52px] w-[52px] rounded-xl"
             >
               {isLoading ? (
@@ -507,7 +571,7 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
             </Button>
           </form>
           <p className="text-[10px] text-center text-muted-foreground mt-2">
-            Press Enter to send, Shift+Enter for new line
+            Press Enter to send, Shift+Enter for new line {selectedProvider === AIProvider.OLLAMA && '| Data processed locally'}
           </p>
         </div>
       </CardContent>

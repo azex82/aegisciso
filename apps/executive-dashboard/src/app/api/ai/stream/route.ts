@@ -33,7 +33,7 @@ function checkRateLimit(userId: string): boolean {
 
 // System prompt
 const SYSTEM_PROMPT = `You are a highly intelligent AI Cybersecurity Director and CISO advisor for SHARP. You have deep expertise across all cybersecurity domains including:
-- Compliance: NCA ECC, SAMA CSF, NIST CSF, ISO 27001
+- Compliance: NCA ECC, NIST CSF, ISO 27001, SOC 2
 - Risk Management: FAIR, threat modeling, risk treatment
 - Security Operations: SOC-CMM, incident response, MITRE ATT&CK
 - Governance: Security strategy, metrics, vendor risk

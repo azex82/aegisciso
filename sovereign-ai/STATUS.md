@@ -34,9 +34,9 @@
 - NIST Cybersecurity Framework (CSF)
 - ISO 27001/27002
 - NCA Essential Cybersecurity Controls (ECC)
-- SAMA Cyber Security Framework
 - SOC 2 Trust Criteria
 - CIS Controls
+- PCI DSS 4.0
 
 ### Key Features
 

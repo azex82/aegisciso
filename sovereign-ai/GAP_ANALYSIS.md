@@ -10,7 +10,7 @@
 - Implement RAG engine for document analysis
 - Build AI-powered cybersecurity modules
 - Enforce zero-trust security architecture
-- Achieve NCA/SAMA compliance readiness
+- Achieve NCA ECC and industry compliance readiness
 
 ---
 
@@ -54,8 +54,8 @@
 | Gap | Current State | Target State | Priority |
 |-----|---------------|--------------|----------|
 | NCA ECC Compliance | Partial | Full mapping | P1 |
-| SAMA CSF | None | Full framework support | P1 |
-| PDPL (Saudi) | None | Data classification | P2 |
+| SOC 2 Type II | Partial | Full framework support | P1 |
+| PCI DSS 4.0 | None | Payment security compliance | P2 |
 | Legal-Grade Audit | Basic | Immutable, signed logs | P1 |
 
 ---
@@ -183,7 +183,7 @@
 
 ### Phase 5: Compliance & Audit (Week 8-10)
 - NCA ECC compliance module
-- SAMA CSF mapping
+- SOC 2 / ISO 27001 mapping
 - Legal-grade audit system
 - Compliance dashboard
 

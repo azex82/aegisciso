@@ -35,6 +35,17 @@ class DocumentType(str, Enum):
     AUDIT_FINDING = "audit_finding"
 
 
+class MatchStrength(str, Enum):
+    """
+    Tiered similarity classification for control matching
+    Based on ISO 27001 & ECC-2:2024 ML Pipeline thresholds
+    """
+    STRONG = "strong"      # ≥ 0.85: Controls are likely equivalent
+    MODERATE = "moderate"  # 0.70-0.84: Related, similar security concepts
+    WEAK = "weak"          # 0.50-0.69: Conceptually related, different aspects
+    NONE = "none"          # < 0.50: Unrelated or unique to one framework
+
+
 @dataclass
 class Document:
     """Document structure for RAG"""
@@ -51,6 +62,7 @@ class RetrievalResult:
     document: Document
     similarity_score: float
     rank: int
+    match_strength: MatchStrength = MatchStrength.NONE
 
 
 @dataclass
@@ -157,6 +169,20 @@ class RAGEngine:
         }
         collection_name = type_to_collection.get(doc_type, "evidence")
         return self.collections[collection_name]
+
+    def _classify_match_strength(self, similarity_score: float) -> MatchStrength:
+        """
+        Classify similarity score into tiered match strength
+        Based on ISO 27001 & ECC-2:2024 ML Pipeline thresholds
+        """
+        if similarity_score >= self.settings.rag.strong_match_threshold:
+            return MatchStrength.STRONG
+        elif similarity_score >= self.settings.rag.moderate_match_threshold:
+            return MatchStrength.MODERATE
+        elif similarity_score >= self.settings.rag.weak_match_threshold:
+            return MatchStrength.WEAK
+        else:
+            return MatchStrength.NONE
 
     def _chunk_text(self, text: str) -> List[str]:
         """Split text into chunks for embedding"""
@@ -307,6 +333,7 @@ class RAGEngine:
                         similarity = 1 - distance
 
                         if similarity >= similarity_threshold:
+                            match_strength = self._classify_match_strength(similarity)
                             results.append(RetrievalResult(
                                 document=Document(
                                     id=metadata.get("parent_id", "unknown"),
@@ -315,7 +342,8 @@ class RAGEngine:
                                     metadata=metadata
                                 ),
                                 similarity_score=similarity,
-                                rank=i
+                                rank=i,
+                                match_strength=match_strength
                             ))
 
             except Exception as e:
@@ -359,7 +387,8 @@ class RAGEngine:
         for i, result in enumerate(retrieval_results):
             context_parts.append(
                 f"[Source {i+1}] (Type: {result.document.doc_type.value}, "
-                f"Relevance: {result.similarity_score:.2f})\n"
+                f"Match: {result.match_strength.value.upper()}, "
+                f"Score: {result.similarity_score:.2f})\n"
                 f"{result.document.content}"
             )
 
@@ -507,6 +536,21 @@ Always cite your sources using [Source N] notation."""
                 "mitre_count": len(mitre_techniques),
             }
         )
+
+    def get_match_distribution(self, results: List[RetrievalResult]) -> Dict[str, int]:
+        """
+        Calculate distribution of match strengths across results
+        Returns counts for Strong/Moderate/Weak/None matches
+        """
+        distribution = {
+            MatchStrength.STRONG.value: 0,
+            MatchStrength.MODERATE.value: 0,
+            MatchStrength.WEAK.value: 0,
+            MatchStrength.NONE.value: 0
+        }
+        for result in results:
+            distribution[result.match_strength.value] += 1
+        return distribution
 
     def persist(self):
         """Persist ChromaDB to disk"""

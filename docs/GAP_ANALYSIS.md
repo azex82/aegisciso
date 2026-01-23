@@ -164,8 +164,8 @@ This document analyzes the current aegisCISO POC against the requirements for th
   - Saudi regulatory compliance
 
 - [ ] **Enhanced Mapping:**
-  - Global frameworks (NIST, ISO 27001, SOC2)
-  - Local frameworks (NCA ECC, SAMA CSF, PDPL)
+  - Global frameworks (NIST CSF, ISO 27001, SOC 2)
+  - Regional frameworks (NCA ECC, PCI DSS, CIS Controls)
   - Matrix view of mappings
 
 - [ ] **Policy Evaluation:**

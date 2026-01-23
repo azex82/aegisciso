@@ -498,7 +498,7 @@ async def map_policy_to_frameworks(
 ):
     """
     Map policy to compliance frameworks
-    Supports NCA ECC, NIST CSF, ISO 27001, SAMA CSF
+    Supports NCA ECC, NIST CSF, ISO 27001, SOC 2
     """
     if Permission.AI_POLICY_MAPPING not in session.permissions:
         raise HTTPException(status_code=403, detail="Insufficient permissions")

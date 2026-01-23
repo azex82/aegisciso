@@ -445,7 +445,7 @@ Your Sharp AI Cybersecurity Director is **production-ready** with:
 
 The AI chat will provide intelligent responses about:
 - Cybersecurity governance
-- Compliance frameworks (NCA ECC, SAMA, NIST, ISO 27001)
+- Compliance frameworks (NCA ECC, NIST CSF, ISO 27001, SOC 2)
 - Risk management
 - Security operations (SOC-CMM)
 - Policy management

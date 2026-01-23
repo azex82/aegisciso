@@ -65,8 +65,8 @@ export function getSampleFrameworkCoverage(): FrameworkCoverage[] {
       noCoverage: 22,
     },
     {
-      code: 'SAMA_CSF',
-      name: 'SAMA Cyber Security Framework',
+      code: 'SOC2',
+      name: 'SOC 2 Type II',
       totalControls: 89,
       mappedControls: 62,
       fullCoverage: 41,

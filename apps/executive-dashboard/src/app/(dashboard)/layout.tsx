@@ -40,7 +40,7 @@ export default async function DashboardLayout({
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
             <p>SABIC AI Cybersecurity Director v1.0.0</p>
-            <p>Sovereign AI - All data processed locally</p>
+            <p>Sovereign AI - Local processing available with Ollama</p>
           </div>
         </div>
       </footer>

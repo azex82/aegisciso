@@ -16,6 +16,11 @@ import { authOptions } from '@/lib/auth';
 
 // Provider configurations
 const PROVIDER_CONFIGS = {
+  groq: {
+    baseUrl: 'https://api.groq.com/openai/v1/chat/completions',
+    apiKeyEnv: 'GROQ_API_KEY',
+    name: 'Groq',
+  },
   openai: {
     baseUrl: 'https://api.openai.com/v1/chat/completions',
     apiKeyEnv: 'OPENAI_API_KEY',
@@ -36,8 +41,8 @@ const PROVIDER_CONFIGS = {
 type Provider = keyof typeof PROVIDER_CONFIGS;
 
 // Fallback model configuration
-const FALLBACK_PROVIDER = 'openai';
-const FALLBACK_MODEL = 'gpt-4o-mini';
+const FALLBACK_PROVIDER = 'groq';
+const FALLBACK_MODEL = 'llama-3.1-8b-instant';
 
 // System prompt for AI Security Advisor
 const SYSTEM_PROMPT = `You are an AI Cybersecurity Director and Chief Information Security Officer (CISO) advisor. You have deep expertise across all domains of cybersecurity.

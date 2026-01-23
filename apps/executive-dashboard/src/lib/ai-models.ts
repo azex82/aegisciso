@@ -4,6 +4,7 @@
  */
 
 export enum AIProvider {
+  GROQ = 'groq',
   OPENAI = 'openai',
   DEEPSEEK = 'deepseek',
   OLLAMA = 'ollama',
@@ -29,6 +30,33 @@ export interface ProviderConfig {
 
 // Provider configurations with their models
 export const PROVIDER_CONFIGS: Record<AIProvider, ProviderConfig> = {
+  [AIProvider.GROQ]: {
+    id: AIProvider.GROQ,
+    name: 'Groq',
+    description: 'Ultra-fast inference with Groq',
+    requiresApiKey: true,
+    models: [
+      {
+        id: 'llama-3.3-70b-versatile',
+        name: 'Llama 3.3 70B',
+        provider: AIProvider.GROQ,
+        description: 'Most capable Llama model',
+        isDefault: true,
+      },
+      {
+        id: 'llama-3.1-8b-instant',
+        name: 'Llama 3.1 8B',
+        provider: AIProvider.GROQ,
+        description: 'Fast and efficient',
+      },
+      {
+        id: 'mixtral-8x7b-32768',
+        name: 'Mixtral 8x7B',
+        provider: AIProvider.GROQ,
+        description: 'Mixture of experts model',
+      },
+    ],
+  },
   [AIProvider.OPENAI]: {
     id: AIProvider.OPENAI,
     name: 'OpenAI',
@@ -105,11 +133,11 @@ export function getProviderByModelId(modelId: string): ProviderConfig | undefine
   return PROVIDER_CONFIGS[model.provider];
 }
 
-// Default model configuration (OpenAI gpt-4.1)
-export const DEFAULT_MODEL: AIModel = PROVIDER_CONFIGS[AIProvider.OPENAI].models[0];
+// Default model configuration (Groq Llama 3.3 70B)
+export const DEFAULT_MODEL: AIModel = PROVIDER_CONFIGS[AIProvider.GROQ].models[0];
 
-// Fallback model (OpenAI gpt-4.1-mini)
-export const FALLBACK_MODEL: AIModel = PROVIDER_CONFIGS[AIProvider.OPENAI].models[1];
+// Fallback model (Groq Llama 3.1 8B)
+export const FALLBACK_MODEL: AIModel = PROVIDER_CONFIGS[AIProvider.GROQ].models[1];
 
 // Storage key for persisting selection
 export const MODEL_STORAGE_KEY = 'aegis-ai-selected-model';
@@ -151,6 +179,7 @@ export function saveSelection(provider: AIProvider, modelId: string): void {
 
 // Provider display information
 export const PROVIDER_ICONS: Record<AIProvider, string> = {
+  [AIProvider.GROQ]: '⚡',
   [AIProvider.OPENAI]: '🤖',
   [AIProvider.DEEPSEEK]: '🔍',
   [AIProvider.OLLAMA]: '🏠',
@@ -158,6 +187,7 @@ export const PROVIDER_ICONS: Record<AIProvider, string> = {
 
 // Provider colors for badges
 export const PROVIDER_COLORS: Record<AIProvider, string> = {
+  [AIProvider.GROQ]: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
   [AIProvider.OPENAI]: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
   [AIProvider.DEEPSEEK]: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
   [AIProvider.OLLAMA]: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400',

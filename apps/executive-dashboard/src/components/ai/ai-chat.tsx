@@ -539,7 +539,7 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
         </div>
 
         {/* Input Area */}
-        <div className="p-4 border-t bg-muted/30">
+        <div className="p-4 border-t bg-muted/30 relative z-40">
           <form onSubmit={handleSubmit} className="flex gap-2">
             <div className="flex-1 relative">
               <Textarea
@@ -561,7 +561,7 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
               type="button"
               size="icon"
               disabled={isLoading || !input.trim() || !selectedModelId}
-              className="h-[52px] w-[52px] rounded-xl"
+              className="h-[52px] w-[52px] rounded-xl relative z-50 cursor-pointer"
               onClick={() => {
                 console.log('Button clicked!', { input, selectedModelId, selectedProvider, isLoading });
                 if (!input.trim() || !selectedModelId || isLoading) {

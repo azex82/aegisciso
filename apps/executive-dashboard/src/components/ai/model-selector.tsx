@@ -40,6 +40,10 @@ export function ModelSelector({ onModelChange, disabled = false, compact = false
   const [expandedProvider, setExpandedProvider] = useState<AIProvider | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Store callback ref to avoid stale closures
+  const onModelChangeRef = useRef(onModelChange);
+  onModelChangeRef.current = onModelChange;
+
   // Load stored selection on mount
   useEffect(() => {
     const stored = getStoredSelection();
@@ -51,7 +55,7 @@ export function ModelSelector({ onModelChange, disabled = false, compact = false
       setCustomModel(stored.modelId);
     }
 
-    onModelChange(stored.provider, stored.modelId);
+    onModelChangeRef.current(stored.provider, stored.modelId);
   }, []);
 
   // Fetch provider health status

@@ -562,6 +562,10 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
               size="icon"
               disabled={isLoading || !input.trim() || !selectedModelId}
               className="h-[52px] w-[52px] rounded-xl"
+              onClick={(e) => {
+                e.preventDefault();
+                handleSubmit(e as unknown as React.FormEvent);
+              }}
             >
               {isLoading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />

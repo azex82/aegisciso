@@ -214,7 +214,11 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!input.trim() || isLoading || !selectedModelId) return;
+    console.log('handleSubmit called', { input, selectedModelId, isLoading });
+    if (!input.trim() || isLoading || !selectedModelId) {
+      console.log('handleSubmit early return');
+      return;
+    }
 
     const userMessage: Message = {
       id: crypto.randomUUID(),
@@ -557,17 +561,11 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
                 }}
               />
             </div>
-            <Button
+            <button
               type="button"
-              size="icon"
               disabled={isLoading || !input.trim() || !selectedModelId}
-              className="h-[52px] w-[52px] rounded-xl relative z-50 cursor-pointer"
+              className="h-[52px] w-[52px] rounded-xl relative z-50 cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               onClick={() => {
-                console.log('Button clicked!', { input, selectedModelId, selectedProvider, isLoading });
-                if (!input.trim() || !selectedModelId || isLoading) {
-                  console.log('Early return:', { inputEmpty: !input.trim(), noModel: !selectedModelId, loading: isLoading });
-                  return;
-                }
                 // Manually trigger the submit logic
                 const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
                 handleSubmit(fakeEvent);
@@ -578,7 +576,7 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
               ) : (
                 <Send className="h-5 w-5" />
               )}
-            </Button>
+            </button>
           </form>
           <p className="text-[10px] text-center text-muted-foreground mt-2">
             Press Enter to send, Shift+Enter for new line {selectedProvider === AIProvider.OLLAMA && '| Data processed locally'}

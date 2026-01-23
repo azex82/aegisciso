@@ -74,16 +74,16 @@ export function ModelSelector({ onModelChange, disabled = false, compact = false
     checkHealth();
   }, []);
 
-  // Fetch Ollama models dynamically
+  // Fetch Ollama models dynamically via backend proxy
   useEffect(() => {
     async function fetchOllamaModels() {
       setOllamaLoading(true);
       setOllamaError(null);
 
       try {
-        const baseUrl = 'http://localhost:11434';
-        const response = await fetch(`${baseUrl}/api/tags`, {
-          signal: AbortSignal.timeout(3000),
+        // Use backend proxy to fetch Ollama models (Ollama runs on server, not client)
+        const response = await fetch('/api/ai/ollama', {
+          signal: AbortSignal.timeout(5000),
         });
 
         if (!response.ok) {

@@ -558,13 +558,19 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
               />
             </div>
             <Button
-              type="submit"
+              type="button"
               size="icon"
               disabled={isLoading || !input.trim() || !selectedModelId}
               className="h-[52px] w-[52px] rounded-xl"
-              onClick={(e) => {
-                e.preventDefault();
-                handleSubmit(e as unknown as React.FormEvent);
+              onClick={() => {
+                console.log('Button clicked!', { input, selectedModelId, selectedProvider, isLoading });
+                if (!input.trim() || !selectedModelId || isLoading) {
+                  console.log('Early return:', { inputEmpty: !input.trim(), noModel: !selectedModelId, loading: isLoading });
+                  return;
+                }
+                // Manually trigger the submit logic
+                const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
+                handleSubmit(fakeEvent);
               }}
             >
               {isLoading ? (

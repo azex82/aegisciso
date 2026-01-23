@@ -544,7 +544,7 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
 
         {/* Input Area */}
         <div className="p-4 border-t bg-muted/30 relative z-40">
-          <form onSubmit={handleSubmit} className="flex gap-2">
+          <div className="flex gap-2">
             <div className="flex-1 relative">
               <Textarea
                 ref={inputRef}
@@ -556,7 +556,8 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
-                    handleSubmit(e);
+                    const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
+                    handleSubmit(fakeEvent);
                   }
                 }}
               />
@@ -566,7 +567,6 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
               disabled={isLoading || !input.trim() || !selectedModelId}
               className="h-[52px] w-[52px] rounded-xl relative z-50 cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               onClick={() => {
-                // Manually trigger the submit logic
                 const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
                 handleSubmit(fakeEvent);
               }}
@@ -577,10 +577,17 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
                 <Send className="h-5 w-5" />
               )}
             </button>
-          </form>
+          </div>
           <p className="text-[10px] text-center text-muted-foreground mt-2">
             Press Enter to send, Shift+Enter for new line {selectedProvider === AIProvider.OLLAMA && '| Data processed locally'}
           </p>
+          {/* Debug button - remove after testing */}
+          <button
+            onClick={() => alert('Button works! Input: ' + input + ', Model: ' + selectedModelId)}
+            className="mt-2 px-4 py-2 bg-red-500 text-white rounded"
+          >
+            TEST CLICK (Debug)
+          </button>
         </div>
       </CardContent>
     </Card>

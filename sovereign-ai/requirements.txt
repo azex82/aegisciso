@@ -20,9 +20,15 @@ sqlalchemy[asyncio]==2.0.25
 alembic==1.13.1
 psycopg2-binary==2.9.9
 
-# Private LLM Integration (Ollama)
+# Private LLM Integration (Ollama - local)
 ollama==0.1.6
 httpx>=0.25.2,<0.26.0
+
+# Groq LLM Integration (Hybrid mode - external API)
+groq>=0.4.0
+
+# OpenAI LLM Integration (Hybrid mode - also used by DeepSeek)
+openai>=1.0.0
 
 # RAG & Embeddings (Local)
 langchain==0.1.0

@@ -48,14 +48,29 @@ class SecuritySettings(BaseSettings):
 
 
 class LLMSettings(BaseSettings):
-    """Private LLM Configuration - No external APIs"""
+    """LLM Configuration - Supports local and hybrid modes with multiple providers"""
+
+    # Provider Selection: "ollama" (local) | "groq" | "openai" | "deepseek" (hybrid)
+    provider: str = "ollama"
 
     # Ollama Configuration (Local LLM Server)
     ollama_host: str = "http://localhost:11434"
     ollama_model: str = "mistral:7b"  # Using Mistral for local deployment
     ollama_embedding_model: str = "nomic-embed-text"
 
-    # Model Parameters
+    # Groq Configuration (Hybrid Mode - external API for LLM)
+    groq_api_key: Optional[str] = None
+    groq_model: str = "llama-3.3-70b-versatile"
+
+    # OpenAI Configuration (Hybrid Mode - external API for LLM)
+    openai_api_key: Optional[str] = None
+    openai_model: str = "gpt-4o"  # Default to GPT-4o
+
+    # DeepSeek Configuration (Hybrid Mode - external API for LLM)
+    deepseek_api_key: Optional[str] = None
+    deepseek_model: str = "deepseek-chat"  # DeepSeek's chat model
+
+    # Model Parameters (shared across providers)
     temperature: float = 0.1  # Low for consistency
     max_tokens: int = 4096
     top_p: float = 0.9
@@ -68,7 +83,7 @@ class LLMSettings(BaseSettings):
     inference_timeout_seconds: int = 300
     embedding_timeout_seconds: int = 60
 
-    # Fallback Model (lighter, faster)
+    # Fallback Model (lighter, faster) - Ollama only
     fallback_model: str = "mistral:7b"
 
     class Config:
@@ -206,8 +221,13 @@ class SovereignSettings(BaseSettings):
 
     # Data Sovereignty
     data_residency: str = "on-premises"
-    external_api_calls_allowed: bool = False  # CRITICAL: Must remain False
+    external_api_calls_allowed: bool = False  # CRITICAL: Must remain False for full sovereignty
     telemetry_enabled: bool = False  # No external telemetry
+
+    # Hybrid Mode: Allows external LLM API (Groq) while keeping data local
+    # When True: LLM inference can use external APIs, but embeddings/RAG remain local
+    # When False: Full sovereignty - all processing is local
+    hybrid_mode: bool = False
 
     # Sub-configurations
     security: SecuritySettings = SecuritySettings()
@@ -220,6 +240,7 @@ class SovereignSettings(BaseSettings):
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+        env_prefix = ""  # Allow HYBRID_MODE without prefix
 
 
 @lru_cache()
@@ -230,23 +251,67 @@ def get_settings() -> SovereignSettings:
 
 # Sovereignty Validation
 def validate_sovereignty():
-    """Validate that no external API calls are configured"""
+    """
+    Validate sovereignty configuration
+
+    In full sovereignty mode (hybrid_mode=False):
+    - No external API calls allowed
+    - All processing must be local
+
+    In hybrid mode (hybrid_mode=True):
+    - External LLM API (Groq) is allowed
+    - Embeddings and data storage remain local
+    - Warnings are logged but do not block
+    """
     settings = get_settings()
 
     violations = []
+    warnings = []
 
-    if settings.external_api_calls_allowed:
-        violations.append("CRITICAL: External API calls are enabled")
-
+    # Check for completely forbidden configurations
     if settings.telemetry_enabled:
-        violations.append("WARNING: Telemetry is enabled - data may leave system")
+        violations.append("CRITICAL: Telemetry is enabled - data may leave system")
 
     if "api.openai.com" in settings.llm.ollama_host:
-        violations.append("CRITICAL: OpenAI API detected in LLM configuration")
+        violations.append("CRITICAL: OpenAI API detected in Ollama host configuration")
 
     if "api.anthropic.com" in settings.llm.ollama_host:
-        violations.append("CRITICAL: Anthropic API detected in LLM configuration")
+        violations.append("CRITICAL: Anthropic API detected in Ollama host configuration")
 
+    # Hybrid mode specific checks
+    if settings.hybrid_mode:
+        # Hybrid mode is enabled - allow Groq but log warning
+        if settings.llm.provider == "groq":
+            warnings.append(
+                "HYBRID MODE: Using Groq API for LLM inference. "
+                "Embeddings and data storage remain local."
+            )
+
+        # external_api_calls_allowed should still be False even in hybrid mode
+        # (hybrid_mode specifically enables LLM API, not general external calls)
+        if settings.external_api_calls_allowed:
+            warnings.append(
+                "WARNING: external_api_calls_allowed=True is redundant with hybrid_mode=True"
+            )
+    else:
+        # Full sovereignty mode
+        if settings.external_api_calls_allowed:
+            violations.append("CRITICAL: External API calls are enabled without hybrid_mode")
+
+        if settings.llm.provider == "groq":
+            violations.append(
+                "CRITICAL: Groq provider requires hybrid_mode=True. "
+                "Set HYBRID_MODE=true to use external LLM APIs."
+            )
+
+    # Log warnings but don't block
+    if warnings:
+        import structlog
+        logger = structlog.get_logger()
+        for warning in warnings:
+            logger.warning("sovereignty_warning", message=warning)
+
+    # Raise on violations
     if violations:
         raise ValueError(f"Sovereignty violations detected:\n" + "\n".join(violations))
 

@@ -17,7 +17,7 @@ from sentence_transformers import SentenceTransformer
 import structlog
 
 from config.settings import get_settings
-from llm.ollama_client import ollama_client, SYSTEM_PROMPTS, LLMMessage, LLMRole
+from llm import get_llm_client, SYSTEM_PROMPTS, LLMMessage, LLMRole
 
 logger = structlog.get_logger()
 settings = get_settings()
@@ -410,13 +410,14 @@ Based on the above context, answer the following question.
 If the context doesn't contain relevant information, say so.
 Always cite your sources using [Source N] notation."""
 
-        # Generate response using private LLM
+        # Generate response using configured LLM provider
         messages = [
             LLMMessage(role=LLMRole.SYSTEM, content=augmented_prompt),
             LLMMessage(role=LLMRole.USER, content=question)
         ]
 
-        llm_response = await ollama_client.chat(
+        llm_client = get_llm_client()
+        llm_response = await llm_client.chat(
             messages=messages,
             user_id=user_id
         )

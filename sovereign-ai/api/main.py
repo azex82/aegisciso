@@ -22,7 +22,7 @@ from security.auth import (
     require_permission, require_mfa, ROLE_PERMISSIONS
 )
 from security.dlp import dlp_engine
-from llm.ollama_client import ollama_client, LLMMessage, LLMRole
+from llm import get_llm_client, LLMMessage, LLMRole
 from rag.engine import rag_engine, DocumentType
 from modules.policy_mapper import policy_mapper, ComplianceFramework
 from modules.soc_cmm_analyzer import soc_cmm_analyzer, SOCCMMDomain, MaturityLevel, Evidence
@@ -42,27 +42,43 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info("sovereign_ai_starting", version=settings.app_version)
 
-    # Validate sovereignty (no external APIs)
+    # Validate sovereignty (respects hybrid_mode setting)
     try:
         validate_sovereignty()
-        logger.info("sovereignty_validation_passed")
+        logger.info(
+            "sovereignty_validation_passed",
+            hybrid_mode=settings.hybrid_mode,
+            provider=settings.llm.provider
+        )
     except ValueError as e:
         logger.critical("sovereignty_violation", error=str(e))
         raise
 
+    # Initialize LLM client via factory
+    llm_client = get_llm_client()
+
     # Check LLM availability
-    if await ollama_client.health_check():
-        logger.info("llm_health_check_passed")
-        models = await ollama_client.list_models()
-        logger.info("available_models", models=models)
+    if await llm_client.health_check():
+        logger.info(
+            "llm_health_check_passed",
+            provider=llm_client.get_provider_name()
+        )
+        # List models only for Ollama (Groq doesn't have this)
+        if hasattr(llm_client, 'list_models'):
+            models = await llm_client.list_models()
+            logger.info("available_models", models=models)
     else:
-        logger.warning("llm_not_available", message="Ollama server not responding")
+        logger.warning(
+            "llm_not_available",
+            provider=llm_client.get_provider_name(),
+            message=f"{llm_client.get_provider_name()} not responding"
+        )
 
     yield
 
     # Shutdown
     logger.info("sovereign_ai_shutting_down")
-    await ollama_client.close()
+    await llm_client.close()
     rag_engine.persist()
 
 
@@ -259,6 +275,8 @@ class HealthResponse(BaseModel):
     status: str
     version: str
     llm_available: bool
+    llm_provider: str
+    hybrid_mode: bool
     sovereignty_validated: bool
     timestamp: str
 
@@ -270,7 +288,8 @@ class HealthResponse(BaseModel):
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
     """Health check endpoint"""
-    llm_available = await ollama_client.health_check()
+    llm_client = get_llm_client()
+    llm_available = await llm_client.health_check()
 
     try:
         validate_sovereignty()
@@ -282,6 +301,8 @@ async def health_check():
         status="healthy" if llm_available and sovereignty_ok else "degraded",
         version=settings.app_version,
         llm_available=llm_available,
+        llm_provider=llm_client.get_provider_name(),
+        hybrid_mode=settings.hybrid_mode,
         sovereignty_validated=sovereignty_ok,
         timestamp=datetime.utcnow().isoformat()
     )
@@ -454,6 +475,7 @@ async def ai_chat(
     session: SessionContext = Depends(get_current_session)
 ):
     """Multi-turn chat with AI Director"""
+    llm_client = get_llm_client()
 
     llm_messages = [
         LLMMessage(
@@ -463,7 +485,7 @@ async def ai_chat(
         for msg in messages
     ]
 
-    response = await ollama_client.chat(
+    response = await llm_client.chat(
         messages=llm_messages,
         user_id=session.user_id
     )
@@ -473,7 +495,10 @@ async def ai_chat(
         session=session,
         action="ai_chat",
         resource="ai_director",
-        details={"message_count": len(messages)},
+        details={
+            "message_count": len(messages),
+            "provider": llm_client.get_provider_name()
+        },
         background_tasks=background_tasks
     )
 
@@ -481,7 +506,8 @@ async def ai_chat(
         "response": response.content,
         "model": response.model,
         "tokens_used": response.tokens_used,
-        "processing_time_ms": response.generation_time_ms
+        "processing_time_ms": response.generation_time_ms,
+        "provider": llm_client.get_provider_name()
     }
 
 

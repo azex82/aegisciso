@@ -212,24 +212,9 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
     setError(null); // Clear any previous errors when model changes
   };
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    alert('Step 1: handleSubmit called. Input: ' + input + ', Model: ' + selectedModelId + ', Loading: ' + isLoading);
-
-    if (!input.trim()) {
-      alert('BLOCKED: Input is empty');
-      return;
-    }
-    if (isLoading) {
-      alert('BLOCKED: Already loading');
-      return;
-    }
-    if (!selectedModelId) {
-      alert('BLOCKED: No model selected');
-      return;
-    }
-
-    alert('Step 2: Passed all checks, creating message...');
+  async function handleSubmit(e?: React.FormEvent) {
+    if (e) e.preventDefault();
+    if (!input.trim() || isLoading || !selectedModelId) return;
 
     const userMessage: Message = {
       id: crypto.randomUUID(),
@@ -243,11 +228,7 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
     setIsLoading(true);
     setError(null);
 
-    alert('Step 3: Message added to state, starting fetch...');
-
     try {
-      // Send request to the multi-provider AI endpoint
-      alert('Step 4: About to fetch /api/ai/chat');
       const response = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -261,12 +242,9 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
         }),
       });
 
-      alert('Step 5: Fetch completed, status: ' + response.status);
       const data = await response.json();
-      alert('Step 6: Got response data');
 
       if (!response.ok) {
-        alert('Step 6b: Response not OK, error: ' + data.error);
         throw new Error(data.error || 'Failed to get response');
       }
 
@@ -573,38 +551,28 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
-                    const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
-                    handleSubmit(fakeEvent);
+                    handleSubmit();
                   }
                 }}
               />
             </div>
-            <button
+            <Button
               type="button"
-              className="h-[52px] w-[52px] rounded-xl relative z-50 cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center"
-              onClick={() => {
-                alert('Send clicked! Calling handleSubmit...');
-                const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
-                handleSubmit(fakeEvent);
-              }}
+              size="icon"
+              disabled={isLoading || !input.trim() || !selectedModelId}
+              className="h-[52px] w-[52px] rounded-xl"
+              onClick={() => handleSubmit()}
             >
               {isLoading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
                 <Send className="h-5 w-5" />
               )}
-            </button>
+            </Button>
           </div>
           <p className="text-[10px] text-center text-muted-foreground mt-2">
             Press Enter to send, Shift+Enter for new line {selectedProvider === AIProvider.OLLAMA && '| Data processed locally'}
           </p>
-          {/* Debug button - remove after testing */}
-          <button
-            onClick={() => alert('Button works! Input: ' + input + ', Model: ' + selectedModelId)}
-            className="mt-2 px-4 py-2 bg-red-500 text-white rounded"
-          >
-            TEST CLICK (Debug)
-          </button>
         </div>
       </CardContent>
     </Card>

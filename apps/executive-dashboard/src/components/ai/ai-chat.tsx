@@ -564,9 +564,9 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
             </div>
             <button
               type="button"
-              disabled={isLoading || !input.trim() || !selectedModelId}
-              className="h-[52px] w-[52px] rounded-xl relative z-50 cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              className="h-[52px] w-[52px] rounded-xl relative z-50 cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center"
               onClick={() => {
+                alert('Send clicked! Calling handleSubmit...');
                 const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
                 handleSubmit(fakeEvent);
               }}

@@ -214,11 +214,22 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    console.log('handleSubmit called', { input, selectedModelId, isLoading });
-    if (!input.trim() || isLoading || !selectedModelId) {
-      console.log('handleSubmit early return');
+    alert('Step 1: handleSubmit called. Input: ' + input + ', Model: ' + selectedModelId + ', Loading: ' + isLoading);
+
+    if (!input.trim()) {
+      alert('BLOCKED: Input is empty');
       return;
     }
+    if (isLoading) {
+      alert('BLOCKED: Already loading');
+      return;
+    }
+    if (!selectedModelId) {
+      alert('BLOCKED: No model selected');
+      return;
+    }
+
+    alert('Step 2: Passed all checks, creating message...');
 
     const userMessage: Message = {
       id: crypto.randomUUID(),
@@ -232,8 +243,11 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
     setIsLoading(true);
     setError(null);
 
+    alert('Step 3: Message added to state, starting fetch...');
+
     try {
       // Send request to the multi-provider AI endpoint
+      alert('Step 4: About to fetch /api/ai/chat');
       const response = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -247,9 +261,12 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
         }),
       });
 
+      alert('Step 5: Fetch completed, status: ' + response.status);
       const data = await response.json();
+      alert('Step 6: Got response data');
 
       if (!response.ok) {
+        alert('Step 6b: Response not OK, error: ' + data.error);
         throw new Error(data.error || 'Failed to get response');
       }
 

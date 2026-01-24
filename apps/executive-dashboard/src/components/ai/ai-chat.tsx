@@ -1,6 +1,19 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+
+// UUID generator that works in non-secure contexts (HTTP)
+function generateUUID(): string {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  // Fallback for non-secure contexts
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 import { Button, Card, CardContent, CardHeader, CardTitle, Badge, Textarea } from '@aegisciso/ui';
 import { Send, Bot, User, Shield, Loader2, AlertTriangle, Lock, Copy, Check, ThumbsUp, ThumbsDown, Settings2, Cloud, Home } from 'lucide-react';
 import { ModelSelector } from './model-selector';
@@ -217,7 +230,7 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
     if (!input.trim() || isLoading || !selectedModelId) return;
 
     const userMessage: Message = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       role: 'user',
       content: input.trim(),
       timestamp: new Date(),
@@ -249,7 +262,7 @@ export function AIChat({ contextType = 'general', initialSystemPrompt, className
       }
 
       const assistantMessage: Message = {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         role: 'assistant',
         content: data.content,
         timestamp: new Date(),
